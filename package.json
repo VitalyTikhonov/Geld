@@ -1,0 +1,22 @@
+{
+  "name": "geld",
+  "version": "1.0.0",
+  "description": "Geld",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VitalyTikhonov/Geld.git"
+  },
+  "author": "Vitaliy Tikhonov",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/VitalyTikhonov/Geld/issues"
+  },
+  "homepage": "https://github.com/VitalyTikhonov/Geld#readme",
+  "devDependencies": {
+    "electron": "^21.2.1"
+  }
+}
