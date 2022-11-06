@@ -1,0 +1,8 @@
+.op_history {
+  border: 1px solid #f6c884;
+  border-radius: 6px;
+}
+
+.op_history--headline {
+  color: #f6c884;
+}

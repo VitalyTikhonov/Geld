@@ -1,0 +1,43 @@
+.sidebar {
+  margin-right: 9px;
+}
+
+.sidebar--headline_link {
+  outline: none;
+}
+
+.sidebar--headline {
+  margin: 0;
+  font-size: 48px;
+  line-height: 58px;
+  color: #91e5f6;
+  text-shadow: 0px 0px 46px rgba(145, 229, 246, 0.87);
+  font-weight: 400;
+  margin-right: 9px;
+}
+
+.sidebar--menu_list {
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+}
+
+.sidebar--menu_item {
+  margin-top: 19px;
+}
+
+.sidebar--menu_link {
+  font-size: 20px;
+  line-height: 24px;
+  text-decoration-line: underline;
+  color: #84d2f6;
+}
+
+.sidebar--menu_link-active {
+  color: #386FA4;
+  text-decoration: none;
+}
+
+.sidebar--menu_link-active:hover {
+  color: #386FA4;
+}

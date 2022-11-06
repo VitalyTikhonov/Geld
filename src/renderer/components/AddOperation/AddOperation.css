@@ -1,0 +1,47 @@
+.add_operation {
+  /* border-width: 1px;
+  border-style: solid; */
+  border-color: #91e5f6;
+  /* border-radius: 6px; */
+  /* padding: 5px 10px; */
+
+  /* display: flex;
+  flex-direction: column;
+  align-items: center; */
+}
+
+.add_operation--headline {
+  /* margin: 0;
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 24px; */
+  color: #91e5f6;
+}
+
+.add_operation--form {
+  display: flex;
+  flex-direction: row;
+}
+
+/* .add_operation--col {
+} */
+
+.add_operation--basic_fields {
+  display: flex;
+  flex-direction: row;
+}
+
+.add_operation--bfieldscol {
+  display: flex;
+  flex-direction: column;
+}
+
+.add_operation--label {
+  font-size: 11px;
+  line-height: 13px;
+  color: #91e5f6;
+  display: flex;
+  flex-direction: column;
+}
+
+/* add_operation--input */
