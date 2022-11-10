@@ -1,32 +1,28 @@
-import {
-  Dispatch,
-  FormEvent,
-  ChangeEvent,
-  SetStateAction,
-  useEffect,
-  useState,
-} from 'react';
-import { Operation } from 'utils/Operation';
+import { FormEvent, ChangeEvent, useEffect } from 'react';
+import { useAppDispatch, useAppSelector } from 'store/hooks';
+import { selectNewOperation, setNewOperation } from 'store/operationsSlice';
 import './AddOperation.css';
 
 export const AddOperation = () => {
-  const [operation, setOperation] = useState(
-    new Operation({ date: new Date().toISOString().split('T')[0] })
-  );
-  // useEffect(() => console.log('operations', operation), [operation]);
+  const newOperation = useAppSelector(selectNewOperation);
+  /* The form field names must match the properties of the Operation */
+  const dispatch = useAppDispatch();
+  useEffect(() => console.log('newOperation', newOperation), [newOperation]);
 
   function handleChange(
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) {
+    /* Save to Redux */
     const { name, value } = event.target;
-    // console.log({ name, value });
-    setOperation({ ...operation, [name]: value });
+    dispatch(setNewOperation({ ...newOperation, [name]: value }));
+    // console.log('{ name, value }', { name, value });
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    // console.log(Object.entries(event));
-    console.log('OPERATION', operation);
+    // console.log('OPERATION', newOperation);
+    /* Pass from Redux to DB */
+    /* Get all operations from DB and write them to Redux */
   }
 
   return (
@@ -49,7 +45,7 @@ export const AddOperation = () => {
                   className="add_operation--input"
                   type="date"
                   name="date"
-                  value={operation.date}
+                  value={newOperation.date || ''}
                   onChange={handleChange}
                   id="date"
                 />
@@ -61,7 +57,7 @@ export const AddOperation = () => {
                   className="add_operation--input"
                   type="number"
                   name="rate"
-                  value={operation.rate}
+                  value={newOperation.rate || ''}
                   onChange={handleChange}
                   id="rate"
                 />
@@ -70,12 +66,12 @@ export const AddOperation = () => {
 
             <div className="add_operation--bfieldscol">
               <label className="add_operation--label" htmlFor="credit">
-                Списание
+                Списание (credit)
                 <input
                   className="add_operation--input"
                   type="text"
                   name="credit"
-                  value={operation.credit}
+                  value={newOperation.credit || ''}
                   onChange={handleChange}
                   id="credit"
                 />
@@ -86,8 +82,8 @@ export const AddOperation = () => {
                 <input
                   className="add_operation--input"
                   type="number"
-                  name="credit_sum"
-                  value={operation.creditSum}
+                  name="creditSum"
+                  value={newOperation.creditSum || ''}
                   onChange={handleChange}
                   id="credit_sum"
                 />
@@ -96,12 +92,12 @@ export const AddOperation = () => {
 
             <div className="add_operation--bfieldscol">
               <label className="add_operation--label" htmlFor="debit">
-                Зачисление
+                Зачисление (debit)
                 <input
                   className="add_operation--input"
                   type="text"
                   name="debit"
-                  value={operation.debit}
+                  value={newOperation.debit || ''}
                   onChange={handleChange}
                   id="debit"
                 />
@@ -112,8 +108,8 @@ export const AddOperation = () => {
                 <input
                   className="add_operation--input"
                   type="number"
-                  name="debit_sum"
-                  value={operation.debitSum}
+                  name="debitSum"
+                  value={newOperation.debitSum || ''}
                   onChange={handleChange}
                   id="debit_sum"
                 />
@@ -125,7 +121,7 @@ export const AddOperation = () => {
             <textarea
               className="add_operation--input"
               name="notes"
-              value={operation.notes}
+              value={newOperation.notes || ''}
               onChange={handleChange}
               id="notes"
             />
@@ -139,7 +135,7 @@ export const AddOperation = () => {
               className="add_operation--input"
               type="text"
               name="categories"
-              value={operation.categories}
+              value={newOperation.categories || ''}
               onChange={handleChange}
               id="categories"
             />
