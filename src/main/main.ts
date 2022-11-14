@@ -9,17 +9,36 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 import path from 'path';
-import { app, BrowserWindow, shell, ipcMain } from 'electron';
+import {
+  app,
+  BrowserWindow,
+  shell,
+  ipcMain,
+  Menu,
+  globalShortcut,
+} from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
+import { createDB, handleSaveOperation } from '../database';
+import { setGlobalShortcut } from './utils';
+import { log as lg } from '../utilsGeneral/console';
 
 class AppUpdater {
   constructor() {
     log.transports.file.level = 'info';
     autoUpdater.logger = log;
     autoUpdater.checkForUpdatesAndNotify();
+  }
+}
+
+async function callDevMethod() {
+  try {
+    const res = await createDB();
+    lg('SUCCESS', res);
+  } catch (error) {
+    lg('FAILURE', error);
   }
 }
 
@@ -87,19 +106,27 @@ const createWindow = async () => {
     if (!mainWindow) {
       throw new Error('"mainWindow" is not defined');
     }
-    if (process.env.START_MINIMIZED) {
-      mainWindow.minimize();
-    } else {
-      mainWindow.show();
-    }
+    // if (process.env.START_MINIMIZED) {
+    //   mainWindow.minimize();
+    // } else {
+    //   mainWindow.show();
+    // }
+    mainWindow.maximize();
+    mainWindow.show();
   });
 
   mainWindow.on('closed', () => {
     mainWindow = null;
   });
 
-  const menuBuilder = new MenuBuilder(mainWindow);
-  menuBuilder.buildMenu();
+  // const menuBuilder = new MenuBuilder(mainWindow);
+  // menuBuilder.buildMenu();
+  // Menu.setApplicationMenu(
+  //   Menu.buildFromTemplate([
+  //     { label: 'CallDevMethod', click: callDevMethod, accelerator: 'Alt + Q' },
+  //   ])
+  // );
+  Menu.setApplicationMenu(null);
 
   // Open urls in the user's browser
   mainWindow.webContents.setWindowOpenHandler((edata) => {
@@ -124,9 +151,13 @@ app.on('window-all-closed', () => {
   }
 });
 
+app.on('will-quit', () => globalShortcut.unregisterAll());
+
 app
   .whenReady()
-  .then(() => {
+  .then(async () => {
+    setGlobalShortcut('Alt + Q', callDevMethod);
+    ipcMain.handle('saveOperation', handleSaveOperation);
     createWindow();
     app.on('activate', () => {
       // On macOS it's common to re-create a window in the app when the

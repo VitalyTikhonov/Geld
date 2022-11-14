@@ -3,6 +3,10 @@ import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 export type Channels = 'ipc-example';
 
 contextBridge.exposeInMainWorld('electron', {
+  saveOp() {
+    ipcRenderer.invoke('saveOperation');
+    console.log('reached preload API');
+  },
   ipcRenderer: {
     sendMessage(channel: Channels, args: unknown[]) {
       ipcRenderer.send(channel, args);

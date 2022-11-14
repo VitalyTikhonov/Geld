@@ -1,7 +1,7 @@
 import './Sidebar.css';
 import { Link, NavLink } from 'react-router-dom';
-import { setClassnames } from 'utils';
 import cn from 'classnames';
+import { setClassnames } from '../../utils';
 
 export const Sidebar = () => {
   return (

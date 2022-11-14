@@ -19,9 +19,10 @@ export const AddOperation = () => {
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
     // console.log('OPERATION', newOperation);
+    event.preventDefault();
     /* Pass from Redux to DB */
+    window.electron.saveOp();
     /* Get all operations from DB and write them to Redux */
   }
 
