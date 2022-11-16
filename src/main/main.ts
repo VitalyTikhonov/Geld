@@ -21,7 +21,7 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
-import { createDB, handleSaveOperation } from '../database';
+import { prepareDB, handleSaveOperation } from '../database';
 import { setGlobalShortcut } from './utils';
 import { log as lg } from '../utilsGeneral/console';
 
@@ -35,7 +35,7 @@ class AppUpdater {
 
 async function callDevMethod() {
   try {
-    const res = await createDB();
+    const res = await prepareDB();
     lg('SUCCESS', res);
   } catch (error) {
     lg('FAILURE', error);

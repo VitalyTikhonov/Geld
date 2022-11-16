@@ -1,72 +1,63 @@
-import fs from 'fs';
+import { Client } from 'pg';
 import { log } from '../utilsGeneral/console';
 import { readFileSnc } from '../main/utils/fileSystem';
 
-const { Pool } = require('pg');
+const appDBName = 'geld_v2';
+const appDBUser = 'postgres';
+const appDBPassword = 'ZaNJx';
 
-const applicationDatabaseName = 'geld_v2';
-const applicationDatabaseUser = 'postgres';
-const applicationDatabasePassword = 'ZaNJx';
-
-const pool = new Pool({
+const config = {
   host: 'localhost',
   port: 5432,
-  user: applicationDatabaseUser,
-  password: applicationDatabasePassword,
-  // database: applicationDatabaseName, // ост.на: успешно создаем БД, но не подключаемся
-});
+  user: appDBUser,
+  password: appDBPassword,
+  database: appDBUser,
+};
 
-export default pool;
+const geldDBCheckError = `Geld DB check error`;
 
-async function isDBExistent(dbName: string) {
-  const dbQuery = await pool.query(
-    `SELECT * FROM pg_database WHERE datname = $1`,
-    [dbName]
-  );
-  return Boolean(dbQuery.rows.length);
+async function getConnectedClient(
+  dbName: string = appDBUser
+): Promise<Client | Error> {
+  config.database = dbName;
+  const client = new Client(config);
+  try {
+    await client.connect();
+    return client;
+  } catch (error) {
+    log(`${geldDBCheckError}, error:\n`, error);
+    const nextError = new Error();
+    nextError.message = geldDBCheckError;
+    return nextError;
+  }
 }
 
-export async function createDB<T>(): Promise<T> {
-  const isExistent1 = await isDBExistent(applicationDatabaseName);
-  log('isExistent1', isExistent1);
-  let dbQuery;
-  if (!isExistent1) {
-    // database does not exist, make it:
-    dbQuery = await pool.query(`CREATE DATABASE ${applicationDatabaseName}`);
-    const isExistent2 = await isDBExistent(applicationDatabaseName);
-    log('isExistent2', isExistent2);
+export async function prepareDB(): Promise<Client | Error> {
+  let client: Client;
+  try {
+    const clientWithPrevDB = (await getConnectedClient(appDBName)) as Client;
+    client = clientWithPrevDB;
+  } catch (error) {
+    if ((error as Error).message === geldDBCheckError) {
+      const clientWithDefaultDB = (await getConnectedClient()) as Client; // no db name arg - to connect to the default db
+      await clientWithDefaultDB.query(`CREATE DATABASE ${appDBName}`);
+      clientWithDefaultDB.end();
+      const clientWithNewDB = (await getConnectedClient(appDBName)) as Client;
+      client = clientWithNewDB;
+    } else {
+      throw error;
+    }
   }
 
-  // const userQuery = await pool.query(
-  //   `SELECT FROM pg_roles where rolname = $1`,
-  //   [applicationDatabaseUser]
-  // );
-  // log('userQuery', userQuery);
-  // log('userQuery.rows', userQuery.rows);
-
-  // if (userQuery.rows.length === 0) {
-  //   // user doesn't exist. make it
-  //   await pool.query(
-  //     `CREATE USER ${applicationDatabaseUser} with ENCRYPTED PASSWORD '${applicationDatabasePassword}'`
-  //   );
-  //   await pool.query(
-  //     `GRANT ALL PRIVILEGES ON DATABASE ${applicationDatabaseName} TO ${applicationDatabaseUser}`
-  //   );
-  // }
-
-  // await pool.end();
-
   const sqlScript = readFileSnc(__dirname, 'database.sql').toString();
-  // log('WTF?????????', sqlScript.slice(150, 165));
-  const res = await pool.query(sqlScript);
-  // const res = await pool.query('SELECT * FROM pg_tables;');
-  return res;
+  await client.query(sqlScript);
+  return client;
 }
 
 export async function handleSaveOperation() {
   // log('reached handleSaveOperation');
   // try {
-  //   const res = await createDB();
+  //   const res = await prepareDB();
   //   log('DB creation result', {
   //     // keys: Object.keys(res),
   //     tables: res,
