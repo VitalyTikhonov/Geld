@@ -156,7 +156,7 @@ app
   .then(async () => {
     setGlobalShortcut('Alt + Q', callDevMethod);
     ipcMain.handle('saveOperation', handleSaveOperation);
-    prepareDB();
+    const db = prepareDB();
     createWindow();
     app.on('activate', () => {
       // On macOS it's common to re-create a window in the app when the
