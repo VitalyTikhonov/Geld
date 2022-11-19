@@ -45,15 +45,20 @@ export async function prepareDB(): Promise<Client | Error> {
       logLabeled(
         `2. Could not connect to a previously created database, creating a new one called ${appDBName}...`
       );
-      const clientWithDefaultDB = (await getConnectedClient()) as Client; // no db name arg - to connect to the default db
-      await clientWithDefaultDB.query(`CREATE DATABASE ${appDBName}`);
-      clientWithDefaultDB.end();
-      logLabeled(`3. Created a new database ${appDBName}`);
-      const clientWithNewDB = (await getConnectedClient(appDBName)) as Client;
-      client = clientWithNewDB;
-      await client.query(sqlScript);
-      logLabeled(`4. Created the database tables`);
-      return client;
+      try {
+        const clientWithDefaultDB = (await getConnectedClient()) as Client; // no db name arg - to connect to the default db
+        await clientWithDefaultDB.query(`CREATE DATABASE ${appDBName}`);
+        clientWithDefaultDB.end();
+        logLabeled(`3. Created a new database ${appDBName}`);
+        const clientWithNewDB = (await getConnectedClient(appDBName)) as Client;
+        client = clientWithNewDB;
+        await client.query(sqlScript);
+        logLabeled(`4. Created the database tables`);
+        return client;
+      } catch {
+        logLabeled(`5. Could not create the database or tables`);
+        throw error;
+      }
     }
     throw error;
   }
