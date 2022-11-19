@@ -23,22 +23,13 @@ import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import { prepareDB, handleSaveOperation } from '../database';
 import { setGlobalShortcut } from './utils';
-import { log as lg } from '../utilsGeneral/console';
+import { logLabeled } from '../utilsGeneral/console';
 
 class AppUpdater {
   constructor() {
     log.transports.file.level = 'info';
     autoUpdater.logger = log;
     autoUpdater.checkForUpdatesAndNotify();
-  }
-}
-
-async function callDevMethod() {
-  try {
-    const res = await prepareDB();
-    lg('SUCCESS', res);
-  } catch (error) {
-    lg('FAILURE', error);
   }
 }
 
@@ -151,13 +142,21 @@ app.on('window-all-closed', () => {
   }
 });
 
-app.on('will-quit', () => globalShortcut.unregisterAll());
+async function callDevMethod() {
+  // try {
+  //   const res = await prepareDB();
+  //   logLabeled('SUCCESS', res);
+  // } catch (error) {
+  //   logLabeled('FAILURE', error);
+  // }
+}
 
 app
   .whenReady()
   .then(async () => {
     setGlobalShortcut('Alt + Q', callDevMethod);
     ipcMain.handle('saveOperation', handleSaveOperation);
+    prepareDB();
     createWindow();
     app.on('activate', () => {
       // On macOS it's common to re-create a window in the app when the
@@ -165,4 +164,6 @@ app
       if (mainWindow === null) createWindow();
     });
   })
-  .catch(console.log);
+  .catch((error) => logLabeled('MAIN app error:\n', error));
+
+app.on('will-quit', () => globalShortcut.unregisterAll());

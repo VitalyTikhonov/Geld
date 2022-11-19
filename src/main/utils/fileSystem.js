@@ -1,4 +1,4 @@
-import fs from 'fs';
+import fs, { appendFileSync } from 'fs';
 // const fsPromises = require('fs/promises');
 import { join } from 'path';
 
@@ -58,3 +58,7 @@ export function readFileSnc(dirname, fileName) {
 // async function download(data, filePath) {
 //   await fsPromises.writeFile(filePath, data);
 // }
+
+export function logToFile(message) {
+  appendFileSync(join(__dirname, '../../logs/db-connection.txt'), message);
+}
