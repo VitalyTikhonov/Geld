@@ -1,7 +1,9 @@
+import { Operation } from '../utilsGeneral/Operation';
+
 declare global {
   interface Window {
     electron: {
-      saveOp(): void;
+      saveOp(operation: Operation): void;
     };
   }
 }

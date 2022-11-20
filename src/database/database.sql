@@ -1,29 +1,29 @@
-create TABLE IF NOT EXISTS currencies(
-    name VARCHAR(30) NOT NULL,
-    symbol VARCHAR(1),
-    code VARCHAR(4) PRIMARY KEY,
-    description VARCHAR(255)
+CREATE TABLE IF NOT EXISTS VALUTY (
+    name TEXT NOT NULL,
+    symbol TEXT,
+    code TEXT PRIMARY KEY,
+    description TEXT
 );
 
-create TABLE IF NOT EXISTS assets(
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    currency VARCHAR(4) NOT NULL,
-    balance NUMERIC(12, 2),
-    description VARCHAR(255),
+CREATE TABLE IF NOT EXISTS assets (
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL,
+    currency TEXT NOT NULL,
+    balance REAL,
+    description TEXT,
     FOREIGN KEY (currency) REFERENCES currencies (code)
 );
 
-create TABLE IF NOT EXISTS operations(
-    id SERIAL PRIMARY KEY,
-    timestamp TIMESTAMPTZ NOT NULL,
-    creditAsset INTEGER NOT NULL,
-    creditValue NUMERIC(12, 2) NOT NULL,
-    debitAsset INTEGER NOT NULL,
-    debitValue NUMERIC(12, 2) NOT NULL,
-    rate NUMERIC(12, 2) NOT NULL,
-    categories VARCHAR(100) [] NOT NULL,
-    comments VARCHAR(255),
+CREATE TABLE IF NOT EXISTS operations (
+    id INTEGER PRIMARY KEY,
+    timestamp TEXT NOT NULL,
+    creditAsset TEXT NOT NULL,
+    creditValue REAL NOT NULL,
+    debitAsset TEXT NOT NULL,
+    debitValue REAL NOT NULL,
+    rate REAL NOT NULL,
+    categories TEXT NOT NULL,
+    comments TEXT,
     FOREIGN KEY (creditAsset) REFERENCES assets (id),
     FOREIGN KEY (debitAsset) REFERENCES assets (id)
 );

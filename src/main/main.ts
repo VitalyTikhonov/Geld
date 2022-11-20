@@ -21,7 +21,7 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
-import { prepareDB, handleSaveOperation } from '../database';
+import { dbConnection } from '../database';
 import { setGlobalShortcut } from './utils';
 import { logLabeled } from '../utilsGeneral/console';
 
@@ -142,21 +142,23 @@ app.on('window-all-closed', () => {
   }
 });
 
-async function callDevMethod() {
-  // try {
-  //   const res = await prepareDB();
-  //   logLabeled('SUCCESS', res);
-  // } catch (error) {
-  //   logLabeled('FAILURE', error);
-  // }
+function callDevMethod(i: number) {
+  const methods = [
+    dbConnection.initializeDB,
+    dbConnection.initializeDBAndTables,
+    dbConnection.requestTableList,
+  ];
+  methods[i]();
 }
 
 app
   .whenReady()
   .then(async () => {
-    setGlobalShortcut('Alt + Q', callDevMethod);
-    ipcMain.handle('saveOperation', handleSaveOperation);
-    const db = prepareDB();
+    setGlobalShortcut('Alt + 1', () => callDevMethod(0));
+    setGlobalShortcut('Alt + 2', () => callDevMethod(1));
+    setGlobalShortcut('Alt + 3', () => callDevMethod(2));
+    ipcMain.handle('saveOperation', dbConnection.handleSaveOperation);
+    // dbConnection.initializeDBAndTables();
     createWindow();
     app.on('activate', () => {
       // On macOS it's common to re-create a window in the app when the

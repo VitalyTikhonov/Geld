@@ -22,7 +22,7 @@ export const AddOperation = () => {
     // console.log('OPERATION', newOperation);
     event.preventDefault();
     /* Pass from Redux to DB */
-    window.electron.saveOp();
+    window.electron.saveOp(newOperation);
     /* Get all operations from DB and write them to Redux */
   }
 
