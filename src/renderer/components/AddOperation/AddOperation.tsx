@@ -7,7 +7,7 @@ export const AddOperation = () => {
   const newOperation = useAppSelector(selectNewOperation);
   /* The form field names must match the properties of the Operation */
   const dispatch = useAppDispatch();
-  useEffect(() => console.log('newOperation', newOperation), [newOperation]);
+  // useEffect(() => console.log('newOperation', newOperation), [newOperation]);
 
   function handleChange(
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -18,11 +18,17 @@ export const AddOperation = () => {
     // console.log('{ name, value }', { name, value });
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     // console.log('OPERATION', newOperation);
     event.preventDefault();
     /* Pass from Redux to DB */
-    window.electron.saveOp(newOperation);
+    try {
+      const operationCreated = await window.electron.saveOp(newOperation);
+      console.log('operationCreated', operationCreated);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log('error', error);
+    }
     /* Get all operations from DB and write them to Redux */
   }
 
@@ -40,15 +46,15 @@ export const AddOperation = () => {
         <div className="add_operation--col">
           <div className="add_operation--basic_fields">
             <div className="add_operation--bfieldscol">
-              <label className="add_operation--label" htmlFor="date">
+              <label className="add_operation--label" htmlFor="timestamp">
                 Дата
                 <input
                   className="add_operation--input"
-                  type="date"
-                  name="date"
-                  value={newOperation.date || ''}
+                  type="timestamp"
+                  name="timestamp"
+                  value={newOperation.timestamp || ''}
                   onChange={handleChange}
-                  id="date"
+                  id="timestamp"
                 />
               </label>
 
@@ -66,15 +72,15 @@ export const AddOperation = () => {
             </div>
 
             <div className="add_operation--bfieldscol">
-              <label className="add_operation--label" htmlFor="credit">
+              <label className="add_operation--label" htmlFor="creditAsset">
                 Списание (credit)
                 <input
                   className="add_operation--input"
                   type="text"
-                  name="credit"
-                  value={newOperation.credit || ''}
+                  name="creditAsset"
+                  value={newOperation.creditAsset || ''}
                   onChange={handleChange}
-                  id="credit"
+                  id="creditAsset"
                 />
               </label>
 
@@ -83,8 +89,8 @@ export const AddOperation = () => {
                 <input
                   className="add_operation--input"
                   type="number"
-                  name="creditSum"
-                  value={newOperation.creditSum || ''}
+                  name="creditValue"
+                  value={newOperation.creditValue || ''}
                   onChange={handleChange}
                   id="credit_sum"
                 />
@@ -92,15 +98,15 @@ export const AddOperation = () => {
             </div>
 
             <div className="add_operation--bfieldscol">
-              <label className="add_operation--label" htmlFor="debit">
+              <label className="add_operation--label" htmlFor="debitAsset">
                 Зачисление (debit)
                 <input
                   className="add_operation--input"
                   type="text"
-                  name="debit"
-                  value={newOperation.debit || ''}
+                  name="debitAsset"
+                  value={newOperation.debitAsset || ''}
                   onChange={handleChange}
-                  id="debit"
+                  id="debitAsset"
                 />
               </label>
 
@@ -109,22 +115,22 @@ export const AddOperation = () => {
                 <input
                   className="add_operation--input"
                   type="number"
-                  name="debitSum"
-                  value={newOperation.debitSum || ''}
+                  name="debitValue"
+                  value={newOperation.debitValue || ''}
                   onChange={handleChange}
                   id="debit_sum"
                 />
               </label>
             </div>
           </div>
-          <label className="add_operation--label" htmlFor="notes">
+          <label className="add_operation--label" htmlFor="comments">
             Примечания
             <textarea
               className="add_operation--input"
-              name="notes"
-              value={newOperation.notes || ''}
+              name="comments"
+              value={newOperation.comments || ''}
               onChange={handleChange}
-              id="notes"
+              id="comments"
             />
           </label>
         </div>

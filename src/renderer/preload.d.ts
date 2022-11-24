@@ -1,9 +1,9 @@
-import { Operation } from '../utilsGeneral/Operation';
+import { DBResponse, Operation } from '../types';
 
 declare global {
   interface Window {
     electron: {
-      saveOp(operation: Operation): void;
+      saveOp(operation: Operation): Promise<DBResponse>;
     };
   }
 }

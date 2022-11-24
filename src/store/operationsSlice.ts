@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Operation } from '../utilsGeneral/Operation';
+import { Operation } from '../types';
 import type { RootState } from './store';
 
 // Define a type for the slice state
@@ -9,7 +9,9 @@ interface OperationsState {
 
 // Define the initial state using that type
 const initialState: OperationsState = {
-  newOperation: new Operation({ date: new Date().toISOString().split('T')[0] }),
+  newOperation: new Operation({
+    timestamp: new Date().toISOString().split('T')[0],
+  }),
 };
 
 export const operationsSlice = createSlice({

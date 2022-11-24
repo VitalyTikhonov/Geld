@@ -4,7 +4,8 @@ import { join } from 'path';
 import sqlite3 from 'sqlite3';
 // import { readFileSnc } from '../main/utils/fileSystem';
 import { logLabeled } from '../utilsGeneral/console';
-import { Operation } from '../utilsGeneral/Operation';
+import { Operation } from '../types/Operation';
+import { GeldDBError, DBResponse } from '../types';
 
 const REQUEST_TABLES = `SELECT name FROM sqlite_schema WHERE type ='table';`;
 const CREATE_CURRENCIES_TABLE_QUERY = {
@@ -18,11 +19,11 @@ const CREATE_CURRENCIES_TABLE_QUERY = {
     );
   `,
 };
+// id INTEGER PRIMARY KEY,
 const CREATE_ASSETS_TABLE_QUERY = {
   name: 'ASSETS',
   query: `
     CREATE TABLE IF NOT EXISTS assets (
-      id INTEGER PRIMARY KEY,
       name TEXT NOT NULL,
       currency TEXT NOT NULL,
       balance REAL,
@@ -43,8 +44,8 @@ const CREATE_OPERATIONS_TABLE_QUERY = {
       rate REAL NOT NULL,
       categories TEXT NOT NULL,
       comments TEXT,
-      FOREIGN KEY (creditAsset) REFERENCES assets (id) ON DELETE CASCADE ON UPDATE NO ACTION,
-      FOREIGN KEY (debitAsset) REFERENCES assets (id) ON DELETE CASCADE ON UPDATE NO ACTION
+      FOREIGN KEY (creditAsset) REFERENCES assets (rowid) ON DELETE CASCADE ON UPDATE NO ACTION,
+      FOREIGN KEY (debitAsset) REFERENCES assets (rowid) ON DELETE CASCADE ON UPDATE NO ACTION
     );
   `,
 };
@@ -63,27 +64,35 @@ class DBConnection {
   }
 
   initializeDB() {
-    const db = new this.sqlite3Verbose.Database(
-      join(__dirname, './_geld_v2.sqlite3'),
-      (error) => {
-        if (error === null) {
-          logLabeled('new sqlite3verbose.Database successful');
-        } else {
-          logLabeled('sqlite3verbose.Database error\n', error);
+    try {
+      const db = new this.sqlite3Verbose.Database(
+        join(__dirname, './_geld_v2.sqlite3'),
+        (error) => {
+          if (error === null) {
+            logLabeled('new sqlite3verbose.Database successful');
+          } else {
+            logLabeled('sqlite3verbose.Database error\n', error);
+          }
         }
-      }
-    );
-    this.db = db;
+      );
+      this.db = db;
+    } catch (error) {
+      logLabeled('Error at initializeDB caught:\n', error);
+    }
   }
 
   private createTable(name: string, query: string): void {
-    this.db.get(query, function (error, row) {
-      if (error) {
-        logLabeled(`Error while creating the ${name} table:\n`, error);
-      } else {
-        logLabeled(`Table ${name} creation result:\n`, row);
-      }
-    });
+    try {
+      this.db.get(query, function (error, row) {
+        if (error) {
+          logLabeled(`Error while creating the ${name} table:\n`, error);
+        } else {
+          logLabeled(`Table ${name} creation result:\n`, row);
+        }
+      });
+    } catch (error) {
+      logLabeled('Error at createTable caught:\n', error);
+    }
   }
 
   initializeDBAndTables(): void {
@@ -104,46 +113,63 @@ class DBConnection {
   }
 
   requestTableList() {
-    this.db.all(REQUEST_TABLES, function (error, rows) {
-      if (error) {
-        logLabeled('Error while requesting the table list:\n', error);
-      } else {
-        logLabeled('The tables:\n', rows);
-      }
-    });
+    try {
+      this.db.all(REQUEST_TABLES, function (error, rows) {
+        if (error) {
+          logLabeled('Error while requesting the table list:\n', error);
+        } else {
+          logLabeled('The tables:\n', rows);
+        }
+      });
+    } catch (error) {
+      logLabeled('Error at requestTableList caught:\n', error);
+    }
   }
 
-  handleSaveOperation(_: IpcMainInvokeEvent, operation: Operation): void {
+  handleSaveOperation(
+    _: IpcMainInvokeEvent,
+    operation: Operation
+  ): Promise<DBResponse> {
     const {
-      date,
+      timestamp,
       rate,
-      credit,
-      creditSum,
-      debit,
-      debitSum,
-      notes,
+      creditAsset,
+      creditValue,
+      debitAsset,
+      debitValue,
+      comments,
       categories,
     } = operation;
-    logLabeled('this', this);
-    this.db.get(
-      'INSERT INTO operations VALUES($date, $rate, $credit, $creditSum, $debit, $debitSum, $notes, $categories) RETURNING *',
-      {
-        $date: date,
-        $rate: rate,
-        $credit: credit,
-        $creditSum: creditSum,
-        $debit: debit,
-        $debitSum: debitSum,
-        $notes: notes,
-        $categories: categories,
-      },
-      function (error, row) {
-        if (error)
-          logLabeled('Error while inserting a row into Operations:\n', error);
-        if (row)
-          logLabeled('Successfully inserted a row into Operations:\n', row);
+    return new Promise<DBResponse>((resolve, reject) => {
+      try {
+        this.db.get(
+          'INSERT INTO operations VALUES($timestamp, $creditAsset, $creditValue, $debitAsset, $debitValue, $rate, $categories, $comments) RETURNING rowid, *;',
+          {
+            $timestamp: timestamp,
+            $creditAsset: creditAsset,
+            $creditValue: creditValue,
+            $debitAsset: debitAsset,
+            $debitValue: debitValue,
+            $rate: rate,
+            $categories: categories,
+            $comments: comments,
+          },
+          function (error, row) {
+            if (error) {
+              // logLabeled('Error while inserting a row into Operations:\n');
+              reject(new GeldDBError(error));
+            }
+            if (row) {
+              // logLabeled('Successfully inserted a row into Operations:\n', row);
+              resolve(row);
+            }
+          }
+        );
+      } catch (error) {
+        // logLabeled('Error at handleSaveOperation caught:\n', error);
+        reject(new GeldDBError(error));
       }
-    );
+    });
   }
 }
 

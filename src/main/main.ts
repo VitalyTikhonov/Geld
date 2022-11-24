@@ -158,7 +158,7 @@ app
     setGlobalShortcut('Alt + 2', () => callDevMethod(1));
     setGlobalShortcut('Alt + 3', () => callDevMethod(2));
     ipcMain.handle('saveOperation', dbConnection.handleSaveOperation);
-    // dbConnection.initializeDBAndTables();
+    dbConnection.initializeDBAndTables();
     createWindow();
     app.on('activate', () => {
       // On macOS it's common to re-create a window in the app when the

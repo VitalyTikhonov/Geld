@@ -1,10 +1,9 @@
 import { contextBridge, ipcRenderer /* , IpcRendererEvent */ } from 'electron';
-import { Operation } from '../utilsGeneral/Operation';
+import { DBResponse, Operation } from '../types';
 
 export type Channels = 'ipc-example';
 
 contextBridge.exposeInMainWorld('electron', {
-  saveOp(operation: Operation) {
-    ipcRenderer.invoke('saveOperation', operation);
-  },
+  saveOp: (operation: Operation): Promise<DBResponse> =>
+    ipcRenderer.invoke('saveOperation', operation),
 });
