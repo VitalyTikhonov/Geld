@@ -1,7 +1,17 @@
 import { FormEvent, ChangeEvent, useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from 'store/hooks';
 import { selectNewOperation, setNewOperation } from 'store/operationsSlice';
-import './AddOperation.css';
+import {
+  AddLineButton,
+  CommentsField,
+  Dropdown,
+  FieldLabel,
+  LabeledFiled,
+  NumericField,
+  SubmitButton,
+} from '../form';
+import './AddOperation.scss';
+import OpLine from './OpLine';
 
 export const AddOperation = () => {
   const newOperation = useAppSelector(selectNewOperation);
@@ -25,134 +35,95 @@ export const AddOperation = () => {
     try {
       const operationCreated = await window.electron.saveOp(newOperation);
       console.log('operationCreated', operationCreated);
+      /* Get all operations from DB and write them to Redux */
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log('error', error);
     }
-    /* Get all operations from DB and write them to Redux */
   }
 
   return (
-    <div className="add_operation framed_section">
-      <h1 className="add_operation--headline framed_section--headline">
-        Добавить операцию
-      </h1>
+    <>
+      <div className="add_operation framed_section">
+        <h1 className="add_operation--headline framed_section--headline">
+          Добавить операцию
+        </h1>
 
-      <form
-        className="add_operation--form"
-        name="addOperationForm"
-        onSubmit={handleSubmit}
-      >
-        <div className="add_operation--col">
-          <div className="add_operation--basic_fields">
-            <div className="add_operation--bfieldscol">
-              <label className="add_operation--label" htmlFor="timestamp">
-                Дата
-                <input
-                  className="add_operation--input"
-                  type="timestamp"
-                  name="timestamp"
-                  value={newOperation.timestamp || ''}
-                  onChange={handleChange}
-                  id="timestamp"
-                />
-              </label>
+        <form
+          className="add_operation--form"
+          name="addOperationForm"
+          onSubmit={handleSubmit}
+        >
+          <OpLine
+            columnLeft={
+              <>
+                <LabeledFiled label="Списание" id="credit">
+                  <Dropdown
+                    id="credit"
+                    optionLabels={['Namba wan', 'Namba tu', 'Namba sri']}
+                  />
+                </LabeledFiled>
 
-              <label className="add_operation--label" htmlFor="rate">
-                Курс
-                <input
-                  className="add_operation--input"
-                  type="number"
-                  name="rate"
-                  value={newOperation.rate || ''}
-                  onChange={handleChange}
-                  id="rate"
+                <Dropdown
+                  id="credit-currency"
+                  optionLabels={['₽', '$', '€', 'Դ']}
                 />
-              </label>
-            </div>
+              </>
+            }
+            columnMiddle={
+              <>
+                <LabeledFiled label="Зачисление" id="debit">
+                  <Dropdown
+                    id="debit"
+                    optionLabels={['Namba wan', 'Namba tu', 'Namba sri']}
+                  />
+                </LabeledFiled>
 
-            <div className="add_operation--bfieldscol">
-              <label className="add_operation--label" htmlFor="creditAsset">
-                Списание (credit)
-                <input
-                  className="add_operation--input"
-                  type="text"
-                  name="creditAsset"
-                  value={newOperation.creditAsset || ''}
-                  onChange={handleChange}
-                  id="creditAsset"
+                <Dropdown
+                  id="debit-currency"
+                  optionLabels={['₽', '$', '€', 'Դ']}
                 />
-              </label>
+              </>
+            }
+            columnRight={
+              <>
+                <LabeledFiled label="Курс" id="rate">
+                  <NumericField id="rate" value={25587485.0} />
+                </LabeledFiled>
+              </>
+            }
+          />
+        </form>
+      </div>
 
-              <label className="add_operation--label" htmlFor="credit_sum">
-                Сумма
-                <input
-                  className="add_operation--input"
-                  type="number"
-                  name="creditValue"
-                  value={newOperation.creditValue || ''}
-                  onChange={handleChange}
-                  id="credit_sum"
-                />
-              </label>
-            </div>
+      <div className="add_operation framed_section">
+        <h1 className="add_operation--headline framed_section--headline">
+          Добавить операцию
+        </h1>
 
-            <div className="add_operation--bfieldscol">
-              <label className="add_operation--label" htmlFor="debitAsset">
-                Зачисление (debit)
-                <input
-                  className="add_operation--input"
-                  type="text"
-                  name="debitAsset"
-                  value={newOperation.debitAsset || ''}
-                  onChange={handleChange}
-                  id="debitAsset"
-                />
-              </label>
-
-              <label className="add_operation--label" htmlFor="debit_sum">
-                Сумма
-                <input
-                  className="add_operation--input"
-                  type="number"
-                  name="debitValue"
-                  value={newOperation.debitValue || ''}
-                  onChange={handleChange}
-                  id="debit_sum"
-                />
-              </label>
-            </div>
+        <form
+          className="add_operation--form"
+          name="addOperationForm"
+          onSubmit={handleSubmit}
+        >
+          <div className="add_operation">
+            <Dropdown
+              id="1"
+              optionLabels={['Namba wan', 'Namba tu', 'Namba sri']}
+            />
+            <FieldLabel htmlFor="drf" label="Yarlyk" />
+            <FieldLabel htmlFor="drf" label="Yarlyk" disabled />
+            <NumericField id="drf" value={25587485.0} />
+            <NumericField id="drf" disabled value={25587485.0} />
+            <AddLineButton onClick={() => undefined} />
+            <SubmitButton onClick={() => undefined} />
+            <CommentsField
+              id="sdfadf"
+              value="Лишь сделанные на базе интернет-аналитики выводы описаны максимально подробно..."
+            />
           </div>
-          <label className="add_operation--label" htmlFor="comments">
-            Примечания
-            <textarea
-              className="add_operation--input"
-              name="comments"
-              value={newOperation.comments || ''}
-              onChange={handleChange}
-              id="comments"
-            />
-          </label>
-        </div>
-
-        <div className="add_operation--col">
-          <label className="add_operation--label" htmlFor="categories">
-            Категории
-            <input
-              className="add_operation--input"
-              type="text"
-              name="categories"
-              value={newOperation.categories || ''}
-              onChange={handleChange}
-              id="categories"
-            />
-          </label>
-
-          <button className="add_operation--submit" type="submit">
-            ДОБАВИТЬ
-          </button>
-        </div>
-      </form>
-    </div>
+        </form>
+      </div>
+    </>
   );
 };

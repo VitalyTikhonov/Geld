@@ -68,3 +68,7 @@ body {
   font-size: 20px;
   line-height: 24px;
 }
+
+.db {
+  box-shadow: 0 0 0 1px green;
+}

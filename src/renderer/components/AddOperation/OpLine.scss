@@ -1,0 +1,26 @@
+.op_line {
+  display: flex;
+  flex-direction: row;
+}
+
+.op_line--column {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  width: 286.52px;
+  height: 40.4px;
+  margin-right: 13px;
+
+  &-right {
+    width: 579px;
+    margin-right: 0;
+  }
+
+  & > * {
+    margin-right: 8.6px;
+
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+}
