@@ -1,4 +1,4 @@
-import './Sidebar.css';
+import './Sidebar.scss';
 import { Link, NavLink } from 'react-router-dom';
 import cn from 'classnames';
 import { setClassnames } from '../../utils';
@@ -6,15 +6,12 @@ import { setClassnames } from '../../utils';
 export const Sidebar = () => {
   return (
     <div className="sidebar">
-      <Link
-        to="/"
-        className={cn('sidebar--headline_link link_unstyling menu_link')}
-      >
+      <Link to="/" className={cn('sidebar--headline_link menu_link')}>
         <h1 className="sidebar--headline">Geld</h1>
       </Link>
 
       <nav className="sidebar--menu">
-        <ul className="sidebar--menu_list list_unstyling">
+        <ul className="sidebar--menu_list">
           <li className="sidebar--menu_item">
             <NavLink to="/" className={setClassnames}>
               Операции

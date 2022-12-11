@@ -20,7 +20,15 @@
 
 .add_operation--form {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
+
+  & > * {
+    margin-bottom: 6.6px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
 }
 
 .add_operation--label {

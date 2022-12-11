@@ -1,0 +1,72 @@
+@use '../../App';
+@import '../form/index.scss';
+
+.categories--selected {
+  display: flex;
+  flex-direction: row;
+}
+
+.categories--tag {
+  display: flex;
+  align-items: center;
+  padding: 0 3px;
+  border: 1px solid #59a5d8;
+  border-radius: 2px;
+  font-size: 16px;
+  line-height: 16px;
+  color: #59a5d8;
+  margin-right: 4px;
+
+  &:last-of-type {
+    margin-right: 0;
+  }
+}
+
+.categories--cross {
+  width: 16px;
+  height: 16px;
+  fill: #59a5d8;
+  margin-left: 2px;
+}
+
+.categories--remove_icon {
+  font-size: 22px;
+  line-height: 19px;
+  padding: 0;
+  color: #59a5d8;
+  margin-left: 2px;
+  background-color: inherit;
+  border: none;
+}
+
+.categories--input_group {
+  position: relative;
+}
+
+.categories--input_field {
+  margin-left: 4px;
+}
+
+.categories--suggestions {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 3px);
+
+  & li {
+    padding: 2px 4px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  & > ul {
+    @include App.list_unstyled;
+  }
+
+  &_active {
+    color: #fff;
+    background-color: #1E90FF;
+    border-radius: 3px;
+  }
+}

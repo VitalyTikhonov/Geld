@@ -12,6 +12,7 @@ import {
 } from '../form';
 import './AddOperation.scss';
 import OpLine from './OpLine';
+import OpSubline from './OpSubline';
 
 export const AddOperation = () => {
   const newOperation = useAppSelector(selectNewOperation);
@@ -54,45 +55,43 @@ export const AddOperation = () => {
           name="addOperationForm"
           onSubmit={handleSubmit}
         >
-          <OpLine
-            columnLeft={
-              <>
-                <LabeledFiled label="Списание" id="credit">
-                  <Dropdown
-                    id="credit"
-                    optionLabels={['Namba wan', 'Namba tu', 'Namba sri']}
-                  />
-                </LabeledFiled>
-
+          <OpLine>
+            <>
+              <LabeledFiled label="Списание" id="credit">
                 <Dropdown
-                  id="credit-currency"
-                  optionLabels={['₽', '$', '€', 'Դ']}
+                  id="credit"
+                  optionLabels={['Namba wan', 'Namba tu', 'Namba sri']}
                 />
-              </>
-            }
-            columnMiddle={
-              <>
-                <LabeledFiled label="Зачисление" id="debit">
-                  <Dropdown
-                    id="debit"
-                    optionLabels={['Namba wan', 'Namba tu', 'Namba sri']}
-                  />
-                </LabeledFiled>
+              </LabeledFiled>
 
+              <Dropdown
+                id="credit-currency"
+                optionLabels={['₽', '$', '€', 'Դ']}
+              />
+            </>
+            <>
+              <LabeledFiled label="Зачисление" id="debit">
                 <Dropdown
-                  id="debit-currency"
-                  optionLabels={['₽', '$', '€', 'Դ']}
+                  id="debit"
+                  optionLabels={['Namba wan', 'Namba tu', 'Namba sri']}
                 />
-              </>
-            }
-            columnRight={
-              <>
-                <LabeledFiled label="Курс" id="rate">
-                  <NumericField id="rate" value={25587485.0} />
-                </LabeledFiled>
-              </>
-            }
-          />
+              </LabeledFiled>
+
+              <Dropdown
+                id="debit-currency"
+                optionLabels={['₽', '$', '€', 'Դ']}
+              />
+            </>
+            <>
+              <LabeledFiled label="Курс" id="rate">
+                <NumericField id="rate" value={85.0} width="narrow" />
+              </LabeledFiled>
+
+              <AddLineButton onClick={() => undefined} />
+            </>
+          </OpLine>
+
+          <OpSubline />
         </form>
       </div>
 

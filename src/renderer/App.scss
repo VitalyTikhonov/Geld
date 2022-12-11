@@ -15,18 +15,18 @@ body {
   font-weight: 400;
 }
 
-.link_unstyling {
+@mixin link_unstyled {
   text-decoration: none;
   color: inherit;
 }
 
-.list_unstyling {
+@mixin list_unstyled {
   padding: 0;
   margin: 0;
   list-style: none;
 }
 
-.button_unstyling {
+@mixin button_unstyling {
   padding: 0;
   background-color: transparent;
   border: none;

@@ -3,6 +3,7 @@ import { FC } from 'react';
 interface IFormElement {
   // eslint-disable-next-line react/no-unused-prop-types
   disabled?: boolean;
+  width?: 'narrow';
 }
 
 interface IField extends IFormElement {

@@ -1,8 +1,11 @@
+@use '../../App';
+
 .sidebar {
   margin-right: 9px;
 }
 
 .sidebar--headline_link {
+  @include App.link_unstyled;
   outline: none;
 }
 
@@ -17,6 +20,7 @@
 }
 
 .sidebar--menu_list {
+  @include App.list_unstyled;
   display: flex;
   flex-direction: column;
   align-items: end;
@@ -27,17 +31,18 @@
 }
 
 .sidebar--menu_link {
+  @include App.link_unstyled;
   font-size: 20px;
   line-height: 24px;
   text-decoration-line: underline;
   color: #84d2f6;
-}
 
-.sidebar--menu_link-active {
-  color: #386FA4;
-  text-decoration: none;
-}
+  &-active {
+    color: #386FA4;
+    text-decoration: none;
+  }
 
-.sidebar--menu_link-active:hover {
-  color: #386FA4;
+  &-active:hover {
+    color: #386FA4;
+  }
 }

@@ -10,19 +10,6 @@ import {
   ITextField,
 } from './types';
 
-function makeCn( /* Убрать, передавать непоср. ПОсмотреть доку по способам объявления
-Сделать ширину поля курса */
-  basicClassname: string,
-  disabled = false,
-  ...additionalClasses: string[]
-): string {
-  return cn(
-    basicClassname,
-    { [`${basicClassname}-disabled`]: disabled },
-    ...additionalClasses
-  );
-}
-
 export function Dropdown({
   disabled,
   optionLabels,
@@ -30,7 +17,11 @@ export function Dropdown({
 }: IDropdown): JSX.Element {
   return (
     <select
-      className={makeCn('form--field', disabled, 'form--dropdown')}
+      className={cn(
+        'form--field',
+        { 'form--field-disabled': disabled },
+        'form--dropdown'
+      )}
       disabled={disabled}
       id={id}
     >
@@ -47,7 +38,10 @@ export function FieldLabel({
   label,
 }: IFieldLabel): JSX.Element {
   return (
-    <label className={makeCn('form--label', disabled)} htmlFor={htmlFor}>
+    <label
+      className={cn('form--label', { 'form--label-disabled': disabled })}
+      htmlFor={htmlFor}
+    >
       {label}
     </label>
   );
@@ -56,12 +50,15 @@ export function NumericField({
   value,
   disabled,
   id,
-  size,
+  width,
 }: INumericField): JSX.Element {
   return (
     <input
       type="number"
-      className={makeCn('form--field', disabled, size)}
+      className={cn('form--field', 'form--field-numeric', {
+        'form--field-disabled': disabled,
+        [`form--field-numeric-${width}`]: Boolean(width),
+      })}
       disabled={disabled}
       value={value}
       id={id}
@@ -76,7 +73,7 @@ export function AddLineButton({ disabled, onClick }: IFormButton): JSX.Element {
       type="button"
       disabled={disabled}
       onClick={onClick}
-      className={makeCn('form--button', disabled)}
+      className={cn('form--button', { 'form--button-disabled': disabled })}
     >
       + Строка
     </button>
@@ -89,7 +86,11 @@ export function SubmitButton({ disabled, onClick }: IFormButton): JSX.Element {
       type="button"
       disabled={disabled}
       onClick={onClick}
-      className={makeCn('form--button', disabled, 'form--button-submit')}
+      className={cn(
+        'form--button',
+        { 'form--button-disabled': disabled },
+        'form--button-submit'
+      )}
     >
       ДОБАВИТЬ
     </button>
@@ -99,7 +100,7 @@ export function SubmitButton({ disabled, onClick }: IFormButton): JSX.Element {
 export function CommentsField({ value, id }: ITextField): JSX.Element {
   return (
     <textarea
-      className={makeCn('form--field', false, 'form--field-area')}
+      className={cn('form--field', 'form--field-area')}
       value={value}
       id={id}
     />
@@ -114,7 +115,10 @@ export function LabeledFiled({
 }: ILabeledField): JSX.Element {
   return (
     <div className="form--labeled_field">
-      <label className={makeCn('form--label', disabled)} htmlFor={id}>
+      <label
+        className={cn('form--label', { 'form--label-disabled': disabled })}
+        htmlFor={id}
+      >
         {label}
       </label>
 

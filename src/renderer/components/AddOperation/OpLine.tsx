@@ -1,21 +1,17 @@
 import './OpLine.scss';
 
 interface IOpLine {
-  columnLeft: JSX.Element | JSX.Element[];
-  columnMiddle: JSX.Element | JSX.Element[];
-  columnRight: JSX.Element | JSX.Element[];
+  children: JSX.Element[];
 }
 
 export default function OpLine(props: IOpLine) {
-  const { columnLeft, columnMiddle, columnRight } = props;
+  const { children } = props;
 
   return (
     <div className="op_line">
-      <div className="op_line--column">{columnLeft}</div>
-      <div className="op_line--column">{columnMiddle}</div>
-      <div className="op_line--column op_line--column-right db">
-        {columnRight}
-      </div>
+      <div className="op_line--column">{children[0]}</div>
+      <div className="op_line--column">{children[1]}</div>
+      <div className="op_line--column op_line--column-right">{children[2]}</div>
     </div>
   );
 }
