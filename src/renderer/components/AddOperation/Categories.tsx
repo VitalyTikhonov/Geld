@@ -1,13 +1,18 @@
 import './Categories.scss';
-import { WithContext as ReactTags } from 'react-tag-input';
-import { useState } from 'react';
+import { WithContext as ReactTags, Tag } from 'react-tag-input';
+import { useEffect, useState } from 'react';
+import { LabeledFiled } from '../form';
 
-function Suggestions({ text }: { text: string } /* , query */): JSX.Element {
+function Suggestions({ text }: { text: string }, query: string): JSX.Element {
+  // eslint-disable-next-line react/destructuring-assignment
+  if (query.length && text.includes(query)) {
+    return <span className="categories--match">{text}</span>;
+  }
   return <>{text}</>;
 }
 
 export default function Categories(): JSX.Element {
-  const suggestions = [
+  const suggestions: Tag[] = [
     { id: 'Thailand', text: 'Thailand' },
     { id: 'India', text: 'India' },
     { id: 'Indonesia', text: 'Indonesia' },
@@ -16,7 +21,32 @@ export default function Categories(): JSX.Element {
     { id: 'Turkey', text: 'Turkey' },
   ];
 
+  function handleFilterSuggestions(
+    query: string,
+    possibleSuggestionsArray: Tag[]
+  ) {
+    if (!query.length) return possibleSuggestionsArray;
+    const sortedOptions = [...possibleSuggestionsArray].sort((a, b) => {
+      if (!a.text.includes(query) && b.text.includes(query)) {
+        return 1;
+      }
+      if (
+        (!a.text.includes(query) && !b.text.includes(query)) ||
+        (a.text.includes(query) && b.text.includes(query))
+      ) {
+        return 0;
+      }
+      return -1;
+    });
+    return sortedOptions;
+  }
+
   const [tags, setTags] = useState([]);
+
+  useEffect(() => {
+    console.clear();
+    console.log('tags', tags);
+  }, [tags]);
 
   const KeyCodes = {
     comma: 188,
@@ -44,43 +74,33 @@ export default function Categories(): JSX.Element {
   };
 
   return (
-    <ReactTags
-      id="categories"
-      placeholder="Выберите категории"
-      tags={tags}
-      suggestions={suggestions}
-      // handleFilterSuggestions={(textInputValue, possibleSuggestionsArray) => {
-      //   const lowerCaseQuery = textInputValue.toLowerCase();
-
-      //   return possibleSuggestionsArray.filter((suggestion) => {
-      //     return suggestion.toLowerCase().includes(lowerCaseQuery);
-      //   });
-      // }}
-      delimiters={delimiters}
-      handleDelete={handleDelete}
-      handleAddition={handleAddition}
-      handleDrag={handleDrag}
-      // handleTagClick={handleTagClick}
-      autocomplete
-      autofocus={false}
-      allowUnique
-      // removeComponent={() => (
-      //   <Cross className="categories--cross" onClick={handleDelete} />
-      // )}
-      classNames={{
-        // tags: 'tagsClass',
-        tagInput: 'categories--input_group',
-        tagInputField: 'form--field categories--input_field',
-        selected: 'categories--selected',
-        tag: 'categories--tag',
-        remove: 'categories--remove_icon',
-        suggestions: 'form--field categories--suggestions',
-        activeSuggestion: 'categories--suggestions_active',
-        // editTagInput: 'editTagInputClass',
-        // editTagInputField: 'editTagInputField',
-        // clearAll: 'clearAllClass',
-      }}
-      renderSuggestion={Suggestions}
-    />
+    <LabeledFiled label="Категории" id="credit-amount">
+      <ReactTags
+        id="categories"
+        placeholder="Выберите категории"
+        tags={tags}
+        suggestions={suggestions}
+        handleFilterSuggestions={handleFilterSuggestions}
+        delimiters={delimiters}
+        handleDelete={handleDelete}
+        handleAddition={handleAddition}
+        handleDrag={handleDrag}
+        autocomplete
+        autofocus={false}
+        allowUnique
+        minQueryLength={0}
+        classNames={{
+          // tags: 'tagsClass',
+          tagInput: 'categories--input_group',
+          tagInputField: 'form--field categories--input_field',
+          selected: 'categories--selected',
+          tag: 'categories--tag',
+          remove: 'categories--remove_icon',
+          suggestions: 'form--field categories--suggestions',
+          activeSuggestion: 'categories--suggestions_active',
+        }}
+        renderSuggestion={Suggestions}
+      />
+    </LabeledFiled>
   );
 }
