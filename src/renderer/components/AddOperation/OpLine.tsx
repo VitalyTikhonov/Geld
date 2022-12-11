@@ -1,17 +1,41 @@
+import classNames from 'classnames';
 import './OpLine.scss';
 
 interface IOpLine {
+  id: string;
   children: JSX.Element[];
+  // eslint-disable-next-line react/require-default-props
+  freeWidth?: boolean;
 }
 
 export default function OpLine(props: IOpLine) {
-  const { children } = props;
+  const { id, children, freeWidth } = props;
 
   return (
-    <div className="op_line">
-      <div className="op_line--column">{children[0]}</div>
-      <div className="op_line--column">{children[1]}</div>
-      <div className="op_line--column op_line--column-right">{children[2]}</div>
+    <div key={id} className="op_line">
+      <div
+        className={classNames('op_line--column', {
+          'op_line--column-freeWidth': freeWidth,
+        })}
+      >
+        {children[0]}
+      </div>
+      <div
+        className={classNames('op_line--column', {
+          'op_line--column-freeWidth': freeWidth,
+        })}
+      >
+        {children[1]}
+      </div>
+      <div
+        className={classNames(
+          'op_line--column',
+          { 'op_line--column-freeWidth': freeWidth },
+          'op_line--column-right'
+        )}
+      >
+        {children[2]}
+      </div>
     </div>
   );
 }

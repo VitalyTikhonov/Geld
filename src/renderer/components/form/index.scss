@@ -5,6 +5,7 @@
   color: #133c55;
   font-size: 16px;
   line-height: 19px;
+  box-sizing: border-box;
 
   &::placeholder {
     color: #386FA4;
@@ -12,7 +13,7 @@
   }
 
   &-area {
-    width: 726px;
+    width: 709px;
     height: 41px;
     // font-family: 'Inter';
     // font-style: normal;
@@ -70,4 +71,25 @@
     font-size: 15px;
     line-height: 18px;
   }
+
+  &-remove {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 21px;
+    height: 21px;
+    background: #7284968c;
+
+    &:disabled {
+      background: #3C4248;
+
+      & .form--cross {
+        fill: #555859;
+      }
+    }
+  }
+}
+
+.form--cross {
+  fill: #59A5D8;
 }

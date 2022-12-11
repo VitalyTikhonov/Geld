@@ -1,12 +1,13 @@
-import { FormEvent, ChangeEvent, useEffect } from 'react';
+import { FormEvent, ChangeEvent, useEffect, useState, MouseEvent } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import { useAppDispatch, useAppSelector } from 'store/hooks';
 import { selectNewOperation, setNewOperation } from 'store/operationsSlice';
 import {
   AddLineButton,
   CommentsField,
+  DateField,
   Dropdown,
-  FieldLabel,
-  LabeledFiled,
+  LabeledField,
   NumericField,
   SubmitButton,
 } from '../form';
@@ -18,6 +19,9 @@ export const AddOperation = () => {
   const newOperation = useAppSelector(selectNewOperation);
   /* The form field names must match the properties of the Operation */
   const dispatch = useAppDispatch();
+
+  const [extraSubLines, setExtraSubLines] = useState<string[]>([uuidv4()]);
+
   // useEffect(() => console.log('newOperation', newOperation), [newOperation]);
 
   function handleChange(
@@ -43,6 +47,12 @@ export const AddOperation = () => {
     }
   }
 
+  function handleRemoveExtraLine(id: string): void {
+    // if (extraSubLines.length > 1) {
+    setExtraSubLines(extraSubLines.filter((l) => l !== id));
+    // }
+  }
+
   return (
     <>
       <div className="add_operation framed_section">
@@ -55,72 +65,87 @@ export const AddOperation = () => {
           name="addOperationForm"
           onSubmit={handleSubmit}
         >
-          <OpLine>
+          <OpLine key={uuidv4()} id={uuidv4()}>
             <>
-              <LabeledFiled label="Списание" id="credit">
+              <LabeledField label="Списание" id="credit">
                 <Dropdown
                   id="credit"
                   optionLabels={['Namba wan', 'Namba tu', 'Namba sri']}
+                  onChange={() => undefined}
                 />
-              </LabeledFiled>
+              </LabeledField>
 
               <Dropdown
                 id="credit-currency"
                 optionLabels={['₽', '$', '€', 'Դ']}
+                onChange={() => undefined}
               />
             </>
             <>
-              <LabeledFiled label="Зачисление" id="debit">
+              <LabeledField label="Зачисление" id="debit">
                 <Dropdown
                   id="debit"
                   optionLabels={['Namba wan', 'Namba tu', 'Namba sri']}
+                  onChange={() => undefined}
                 />
-              </LabeledFiled>
+              </LabeledField>
 
               <Dropdown
                 id="debit-currency"
                 optionLabels={['₽', '$', '€', 'Դ']}
+                onChange={() => undefined}
               />
             </>
             <>
-              <LabeledFiled label="Курс" id="rate">
-                <NumericField id="rate" value={85.0} width="narrow" />
-              </LabeledFiled>
+              <div className="display_row">
+                <LabeledField label="Курс" id="rate">
+                  <NumericField
+                    id="rate"
+                    value={85.0}
+                    width="narrow"
+                    onChange={() => undefined}
+                  />
+                </LabeledField>
 
-              <AddLineButton onClick={() => undefined} />
+                <LabeledField label="Итого" id="sublines_total">
+                  <NumericField
+                    id="sublines_total"
+                    value={2456425.0}
+                    onChange={() => undefined}
+                  />
+                </LabeledField>
+              </div>
+
+              <AddLineButton
+                onClick={() => setExtraSubLines([...extraSubLines, uuidv4()])}
+              />
             </>
           </OpLine>
 
-          <OpSubline />
-        </form>
-      </div>
-
-      <div className="add_operation framed_section">
-        <h1 className="add_operation--headline framed_section--headline">
-          Добавить операцию
-        </h1>
-
-        <form
-          className="add_operation--form"
-          name="addOperationForm"
-          onSubmit={handleSubmit}
-        >
-          <div className="add_operation">
-            <Dropdown
-              id="1"
-              optionLabels={['Namba wan', 'Namba tu', 'Namba sri']}
+          {extraSubLines.map((sl) => (
+            <OpSubline
+              key={sl}
+              id={sl}
+              handleRemoveExtraLine={handleRemoveExtraLine}
+              isSingle={extraSubLines.length === 1}
             />
-            <FieldLabel htmlFor="drf" label="Yarlyk" />
-            <FieldLabel htmlFor="drf" label="Yarlyk" disabled />
-            <NumericField id="drf" value={25587485.0} />
-            <NumericField id="drf" disabled value={25587485.0} />
-            <AddLineButton onClick={() => undefined} />
+          ))}
+
+          <OpLine key={uuidv4()} id={uuidv4()} freeWidth>
+            <LabeledField label="Дата" id="date">
+              <DateField id="date" onChange={() => undefined} />
+            </LabeledField>
+
+            <LabeledField label="Примечания" id="comments">
+              <CommentsField
+                id="comments"
+                value="Лишь сделанные на базе интернет-аналитики выводы описаны максимально подробно..."
+                onChange={() => undefined}
+              />
+            </LabeledField>
+
             <SubmitButton onClick={() => undefined} />
-            <CommentsField
-              id="sdfadf"
-              value="Лишь сделанные на базе интернет-аналитики выводы описаны максимально подробно..."
-            />
-          </div>
+          </OpLine>
         </form>
       </div>
     </>

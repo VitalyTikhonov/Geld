@@ -8,12 +8,12 @@
   flex-direction: row;
   align-items: flex-end;
   width: 286.52px;
-  height: 40.4px;
   margin-right: 13px;
 
   &-right {
     width: 579px;
     margin-right: 0;
+    justify-content: space-between;
   }
 
   & > * {
@@ -22,5 +22,9 @@
     &:last-child {
       margin-right: 0;
     }
+  }
+
+  &-freeWidth {
+    width: unset;
   }
 }

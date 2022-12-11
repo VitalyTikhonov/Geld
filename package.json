@@ -117,7 +117,7 @@
     "react-router-dom": "^6.3.0",
     "react-tag-input": "^6.8.1",
     "redux": "^4.2.0",
-    "sqlite3": "^5.1.2"
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.7",
@@ -132,6 +132,7 @@
     "@types/react-tag-input": "^6.6.1",
     "@types/react-test-renderer": "^18.0.0",
     "@types/terser-webpack-plugin": "^5.0.4",
+    "@types/uuid": "^9.0.0",
     "@types/webpack-bundle-analyzer": "^4.4.2",
     "@typescript-eslint/eslint-plugin": "^5.33.1",
     "@typescript-eslint/parser": "^5.33.1",

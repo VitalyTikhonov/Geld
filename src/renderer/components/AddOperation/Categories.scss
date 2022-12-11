@@ -1,6 +1,10 @@
 @use '../../App';
 @import '../form/index.scss';
 
+// .categories {
+//   overflow-x: hidden;
+// }
+
 .categories--selected {
   display: flex;
   flex-direction: row;
@@ -46,13 +50,14 @@
 }
 
 .categories--input_field {
-  width: 114px;
+  width: 128px;
 }
 
 .categories--suggestions {
   position: absolute;
   right: 0;
   top: calc(100% + 3px);
+  z-index: 1;
 
   & li {
     padding: 2px 4px;

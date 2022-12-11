@@ -72,3 +72,16 @@ body {
 .db {
   box-shadow: 0 0 0 1px green;
 }
+
+.display_row {
+  display: flex;
+  flex-direction: row;
+  // justify-content: center;
+  & > * {
+    margin-right: 13px;
+
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+}
