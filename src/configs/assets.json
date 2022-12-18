@@ -1,0 +1,120 @@
+[
+  { "name": "А_Наличные", "currency": "RUR", "balance": 0, "description": "" },
+  { "name": "Я_Нал_драмы", "currency": "AMD", "balance": 0, "description": "" },
+  {
+    "name": "Б1_Тинькофф_Карта",
+    "currency": "RUR",
+    "balance": 0,
+    "description": ""
+  },
+  { "name": "Б2_Тинькофф_НС", "currency": "RUR", "balance": 0, "description": "" },
+  {
+    "name": "Б3_Тинькофф_НС-Safety-р",
+    "currency": "RUR",
+    "balance": 0,
+    "description": ""
+  },
+  {
+    "name": "Б4_Тинькофф_МИР-Safety-д",
+    "currency": "USD",
+    "balance": 0,
+    "description": ""
+  },
+  {
+    "name": "Б5_Тинькофф_В-Safety-р",
+    "currency": "RUR",
+    "balance": 0,
+    "description": ""
+  },
+  { "name": "В1_Сбер_Карта", "currency": "RUR", "balance": 0, "description": "" },
+  {
+    "name": "В2_Сбер_НС_safety2",
+    "currency": "RUR",
+    "balance": 0,
+    "description": ""
+  },
+  {
+    "name": "Г1_Райффайзен_Карта",
+    "currency": "RUR",
+    "balance": 0,
+    "description": ""
+  },
+  {
+    "name": "Г2_Райф_Карта_МИР-р",
+    "currency": "RUR",
+    "balance": 0,
+    "description": ""
+  },
+  {
+    "name": "Сбер_НС_safety2_до112022",
+    "currency": "RUR",
+    "balance": 0,
+    "description": ""
+  },
+  {
+    "name": "Тинькофф_ВКЛАД-ПБ-Safety-д",
+    "currency": "RUR",
+    "balance": 0,
+    "description": ""
+  },
+  {
+    "name": "Тинькофф_НС-Ongoing",
+    "currency": "RUR",
+    "balance": 0,
+    "description": ""
+  },
+  {
+    "name": "Сбер_НС_safety22456245",
+    "currency": "RUR",
+    "balance": 0,
+    "description": ""
+  },
+  {
+    "name": "В4_Сбер_ВК_debt1_тР",
+    "currency": "RUR",
+    "balance": 0,
+    "description": ""
+  },
+  { "name": "Сбер_нс_м", "currency": "RUR", "balance": 0, "description": "" },
+  {
+    "name": "Тинькофф_НС-ПБ_2021-02.2022",
+    "currency": "RUR",
+    "balance": 0,
+    "description": ""
+  },
+  { "name": "Л_Тинькофф_Р/С", "currency": "RUR", "balance": 0, "description": "" },
+  {
+    "name": "Тинькофф_Вклад_8.06.2021",
+    "currency": "RUR",
+    "balance": 0,
+    "description": ""
+  },
+  {
+    "name": "Вклад_СБ_21.01.2020_Сохраняй_Онлайн",
+    "currency": "RUR",
+    "balance": 0,
+    "description": ""
+  },
+  {
+    "name": "Ё_Вклад_Сохраняй_16.08.2020",
+    "currency": "RUR",
+    "balance": 0,
+    "description": ""
+  },
+  {
+    "name": "Г_МОДУЛЬБАНК_Р/С",
+    "currency": "RUR",
+    "balance": 0,
+    "description": ""
+  },
+  {
+    "name": "Ж_Яндекс.Деньги",
+    "currency": "RUR",
+    "balance": 0,
+    "description": ""
+  },
+  { "name": "З_ВТБ24_Карта", "currency": "RUR", "balance": 0, "description": "" },
+  { "name": "И_ВТБ24_Онлайн", "currency": "RUR", "balance": 0, "description": "" },
+  { "name": "Я_Сбербанк_УС", "currency": "RUR", "balance": 0, "description": "" },
+  { "name": "Я_IBANK_Р/С", "currency": "RUR", "balance": 0, "description": "" }
+]

@@ -1,18 +1,30 @@
+import { ChangeEvent } from 'react';
+
 interface IFormElement {
   // eslint-disable-next-line react/no-unused-prop-types
   disabled?: boolean;
   width?: 'narrow';
 }
 
+export type ChangeEventSubset = ChangeEvent<
+  HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+>;
+
+export type GeneralChangeHandler = (arg: ChangeEventSubset | IOption) => void;
+
 interface IField<T> extends IFormElement {
   // eslint-disable-next-line react/no-unused-prop-types
   id: string;
+  name: string;
   value?: T;
-  onChange: () => void;
+  onChange: GeneralChangeHandler;
 }
 
+export type IOption<T = string> = { value: T; name: string };
+
 export interface IDropdown extends IField<string> {
-  optionLabels: string[];
+  options: string[] | IOption[];
+  isSimple?: boolean;
 }
 
 // export interface IFieldLabel extends IFormElement {

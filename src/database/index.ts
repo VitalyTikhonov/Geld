@@ -1,34 +1,23 @@
 /* eslint-disable func-names */
-import { IpcMainInvokeEvent } from 'electron';
 import { join } from 'path';
 import sqlite3 from 'sqlite3';
 // import { readFileSnc } from '../main/utils/fileSystem';
 import { logLabeled } from '../utilsGeneral/console';
 import { Operation } from '../types/Operation';
-import { GeldDBError, DBResponse } from '../types';
+import { DBResponse } from '../types';
+import { GeldDBError } from '../types/errors';
+import { Asset } from '../types/Asset';
 
 const REQUEST_TABLES = `SELECT name FROM sqlite_schema WHERE type ='table';`;
-const CREATE_CURRENCIES_TABLE_QUERY = {
-  name: 'CURRENCIES',
-  query: `
-    CREATE TABLE IF NOT EXISTS currencies (
-      name TEXT NOT NULL,
-      symbol TEXT,
-      code TEXT PRIMARY KEY,
-      description TEXT
-    );
-  `,
-};
-// id INTEGER PRIMARY KEY,
 const CREATE_ASSETS_TABLE_QUERY = {
   name: 'ASSETS',
   query: `
     CREATE TABLE IF NOT EXISTS assets (
+      id TEXT NOT NULL PRIMARY KEY,
       name TEXT NOT NULL,
       currency TEXT NOT NULL,
       balance REAL,
-      description TEXT,
-      FOREIGN KEY (currency) REFERENCES currencies (code) ON DELETE CASCADE ON UPDATE NO ACTION
+      description TEXT
     );
   `,
 };
@@ -36,6 +25,7 @@ const CREATE_OPERATIONS_TABLE_QUERY = {
   name: 'OPERATIONS',
   query: `
     CREATE TABLE IF NOT EXISTS operations (
+      id TEXT NOT NULL PRIMARY KEY,
       timestamp TEXT NOT NULL,
       creditAsset TEXT NOT NULL,
       creditValue REAL NOT NULL,
@@ -44,8 +34,9 @@ const CREATE_OPERATIONS_TABLE_QUERY = {
       rate REAL NOT NULL,
       categories TEXT NOT NULL,
       comments TEXT,
-      FOREIGN KEY (creditAsset) REFERENCES assets (rowid) ON DELETE CASCADE ON UPDATE NO ACTION,
-      FOREIGN KEY (debitAsset) REFERENCES assets (rowid) ON DELETE CASCADE ON UPDATE NO ACTION
+      relatedOperations TEXT,
+      FOREIGN KEY (creditAsset) REFERENCES assets (id) ON DELETE CASCADE ON UPDATE NO ACTION,
+      FOREIGN KEY (debitAsset) REFERENCES assets (id) ON DELETE CASCADE ON UPDATE NO ACTION
     );
   `,
 };
@@ -98,10 +89,10 @@ class DBConnection {
   initializeDBAndTables(): void {
     this.initializeDB();
     // const sqlScript = readFileSnc(__dirname, 'database.sql').toString();
-    this.createTable(
-      CREATE_CURRENCIES_TABLE_QUERY.name,
-      CREATE_CURRENCIES_TABLE_QUERY.query
-    );
+    // this.createTable(
+    //   CREATE_CURRENCIES_TABLE_QUERY.name,
+    //   CREATE_CURRENCIES_TABLE_QUERY.query
+    // );
     this.createTable(
       CREATE_ASSETS_TABLE_QUERY.name,
       CREATE_ASSETS_TABLE_QUERY.query
@@ -126,11 +117,9 @@ class DBConnection {
     }
   }
 
-  handleSaveOperation(
-    _: IpcMainInvokeEvent,
-    operation: Operation
-  ): Promise<DBResponse> {
+  handleSaveOperation(operation: Operation): Promise<DBResponse<Operation>> {
     const {
+      id,
       timestamp,
       rate,
       creditAsset,
@@ -139,12 +128,14 @@ class DBConnection {
       debitValue,
       comments,
       categories,
+      relatedOperations,
     } = operation;
-    return new Promise<DBResponse>((resolve, reject) => {
+    return new Promise<DBResponse<Operation>>((resolve, reject) => {
       try {
         this.db.get(
-          'INSERT INTO operations VALUES($timestamp, $creditAsset, $creditValue, $debitAsset, $debitValue, $rate, $categories, $comments) RETURNING rowid, *;',
+          'INSERT INTO operations VALUES($id, $timestamp, $creditAsset, $creditValue, $debitAsset, $debitValue, $rate, $categories, $comments, $relatedOperations) RETURNING rowid, *;',
           {
+            $id: id,
             $timestamp: timestamp,
             $creditAsset: creditAsset,
             $creditValue: creditValue,
@@ -153,6 +144,7 @@ class DBConnection {
             $rate: rate,
             $categories: categories,
             $comments: comments,
+            $relatedOperations: relatedOperations?.join(', ') ?? '',
           },
           function (error, row) {
             if (error) {
@@ -165,6 +157,57 @@ class DBConnection {
             }
           }
         );
+      } catch (error) {
+        // logLabeled('Error at handleSaveOperation caught:\n', error);
+        reject(new GeldDBError(error));
+      }
+    });
+  }
+
+  handleSaveAsset(asset: Asset): Promise<DBResponse<Asset>> {
+    const { id, name, currency, balance, description } = asset;
+    return new Promise<DBResponse<Asset>>((resolve, reject) => {
+      try {
+        this.db.get(
+          'INSERT INTO assets VALUES($id, $name, $currency, $balance, $description) RETURNING rowid, *;',
+          {
+            $id: id,
+            $name: name,
+            $currency: currency,
+            $balance: balance,
+            $description: description,
+          },
+          function (error, row) {
+            if (error) {
+              // logLabeled('Error while inserting a row into Assets:\n');
+              reject(new GeldDBError(error));
+            }
+            if (row) {
+              // logLabeled('Successfully inserted a row into Assets:\n', row);
+              resolve(row);
+            }
+          }
+        );
+      } catch (error) {
+        // logLabeled('Error at handleSaveOperation caught:\n', error);
+        reject(new GeldDBError(error));
+      }
+    });
+  }
+
+  getAssets(): Promise<DBResponse<Asset[]>> {
+    return new Promise<Asset[]>((resolve, reject) => {
+      try {
+        this.db.all('SELECT * FROM assets', function (error, rows) {
+          if (error) {
+            logLabeled('Error while getting assets:\n');
+            reject(new GeldDBError(error));
+          }
+          if (rows) {
+            logLabeled('Successfully got assets:\n', rows);
+            resolve(rows);
+          }
+        });
       } catch (error) {
         // logLabeled('Error at handleSaveOperation caught:\n', error);
         reject(new GeldDBError(error));

@@ -1,6 +1,6 @@
 /* eslint-disable react/require-default-props */
 import cn from 'classnames';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import Cross from '../ui';
 import './index.scss';
@@ -10,16 +10,26 @@ import {
   // IFieldLabel,
   ILabeledField,
   INumericField,
+  IOption,
   IRemoveLineButton,
   ISubmitButton,
   ITextField,
 } from './types';
 
 export function Dropdown({
+  isSimple,
   disabled,
-  optionLabels,
+  options,
   id,
+  value,
+  name,
+  onChange,
 }: IDropdown): JSX.Element {
+  const [localValue, setLocalValue] = useState<IOption>({
+    value: '',
+    name: '',
+  });
+
   return (
     <select
       className={cn(
@@ -29,10 +39,23 @@ export function Dropdown({
       )}
       disabled={disabled}
       id={id}
+      value={isSimple ? value : localValue.value}
+      name={name}
+      onChange={(e) => onChange(isSimple ? e : localValue)}
     >
-      {optionLabels.map((option) => (
-        <option key={uuidv4()} /* className={cn()} */>{option}</option>
-      ))}
+      {options.map((option) => {
+        if (isSimple) {
+          return <option key={uuidv4()}>{option as string}</option>;
+        }
+        return (
+          <option
+            key={(option as IOption).value}
+            onClick={() => setLocalValue(option as IOption)}
+          >
+            {(option as IOption).name}
+          </option>
+        );
+      })}
     </select>
   );
 }
@@ -58,10 +81,12 @@ export function NumericField({
   disabled,
   id,
   width,
+  name,
 }: INumericField): JSX.Element {
   return (
     <input
       type="number"
+      name={name}
       className={cn('form--field', 'form--field-numeric', {
         'form--field-disabled': disabled,
         [`form--field-numeric-${width}`]: Boolean(width),
@@ -75,10 +100,16 @@ export function NumericField({
   );
 }
 
-export function DateField({ value, disabled, id }: ITextField): JSX.Element {
+export function DateField({
+  value,
+  disabled,
+  id,
+  name,
+}: ITextField): JSX.Element {
   return (
     <input
       type="date"
+      name={name}
       className={cn('form--field', { 'form--field-disabled': disabled })}
       disabled={disabled}
       value={value}
@@ -89,11 +120,13 @@ export function DateField({ value, disabled, id }: ITextField): JSX.Element {
 
 export function CommentsField({
   value,
+  name,
   id,
   onChange,
 }: ITextField): JSX.Element {
   return (
     <textarea
+      name={name}
       className={cn('form--field', 'form--field-area')}
       value={value}
       id={id}

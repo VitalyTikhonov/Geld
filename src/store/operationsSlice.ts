@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Operation } from '../types';
+import { v4 } from 'uuid';
+import { Operation } from '../types/Operation';
 import type { RootState } from './store';
 
 // Define a type for the slice state
@@ -10,6 +11,7 @@ interface OperationsState {
 // Define the initial state using that type
 const initialState: OperationsState = {
   newOperation: new Operation({
+    id: v4(),
     timestamp: new Date().toISOString().split('T')[0],
   }),
 };

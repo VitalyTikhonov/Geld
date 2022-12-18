@@ -16,14 +16,19 @@ import {
   ipcMain,
   Menu,
   globalShortcut,
+  IpcMainInvokeEvent,
 } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
+import { v4 } from 'uuid';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import { dbConnection } from '../database';
 import { setGlobalShortcut } from './utils';
 import { logLabeled } from '../utilsGeneral/console';
+import { Operation } from '../types/Operation';
+import assets from '../configs/assets.json';
+import { Asset } from '../types/Asset';
 
 class AppUpdater {
   constructor() {
@@ -147,6 +152,13 @@ function callDevMethod(i: number) {
     dbConnection.initializeDB,
     dbConnection.initializeDBAndTables,
     dbConnection.requestTableList,
+    () => {
+      logLabeled('assets', assets);
+      (assets as Asset[]).forEach((a) => {
+        a.id = v4();
+        dbConnection.handleSaveAsset(new Asset(a));
+      });
+    },
   ];
   methods[i]();
 }
@@ -157,7 +169,16 @@ app
     setGlobalShortcut('Alt + 1', () => callDevMethod(0));
     setGlobalShortcut('Alt + 2', () => callDevMethod(1));
     setGlobalShortcut('Alt + 3', () => callDevMethod(2));
-    ipcMain.handle('saveOperation', dbConnection.handleSaveOperation);
+    setGlobalShortcut('Alt + 4', () => callDevMethod(3));
+
+    ipcMain.handle(
+      'saveOperation',
+      (_: IpcMainInvokeEvent, operation: Operation) =>
+        dbConnection.handleSaveOperation(operation)
+    );
+    ipcMain.handle('getAssets', (/* _: IpcMainInvokeEvent */) =>
+      dbConnection.getAssets());
+
     dbConnection.initializeDBAndTables();
     createWindow();
     app.on('activate', () => {

@@ -1,7 +1,12 @@
-import { FormEvent, ChangeEvent, useEffect, useState, MouseEvent } from 'react';
+import {
+  FormEvent,
+  ChangeEvent,
+  useEffect,
+  useState,
+  MouseEvent,
+  useMemo,
+} from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { useAppDispatch, useAppSelector } from 'store/hooks';
-import { selectNewOperation, setNewOperation } from 'store/operationsSlice';
 import {
   AddLineButton,
   CommentsField,
@@ -14,24 +19,52 @@ import {
 import './AddOperation.scss';
 import OpLine from './OpLine';
 import OpSubline from './OpSubline';
+import {
+  ChangeEventSubset,
+  GeneralChangeHandler,
+  IOption,
+} from '../form/types';
+import { Operation } from '../../../types/Operation';
+import { currencySymbols } from '../../../types/currencies';
+import { Asset } from '../../../types/Asset';
+import { requestAssets } from '../../utils';
 
 export const AddOperation = () => {
-  const newOperation = useAppSelector(selectNewOperation);
   /* The form field names must match the properties of the Operation */
-  const dispatch = useAppDispatch();
+  const [newOperation, setNewOperation] = useState(
+    new Operation({
+      id: uuidv4(),
+      timestamp: new Date().toISOString().split('T')[0],
+    })
+  );
+  useEffect(() => console.log('newOperation', newOperation), [newOperation]);
+
+  const [assets, setAssets] = useState<Asset[]>([]);
+  useEffect(() => {
+    requestAssets(setAssets);
+  }, []);
+
+  const assetOptions = useMemo(
+    () => assets.map((a) => ({ value: a.id, name: a.name })),
+    [assets]
+  );
 
   const [extraSubLines, setExtraSubLines] = useState<string[]>([uuidv4()]);
 
-  // useEffect(() => console.log('newOperation', newOperation), [newOperation]);
-
-  function handleChange(
-    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) {
-    /* Save to Redux */
-    const { name, value } = event.target;
-    dispatch(setNewOperation({ ...newOperation, [name]: value }));
-    // console.log('{ name, value }', { name, value });
-  }
+  const handleChange: GeneralChangeHandler = (event) => {
+    let propKey: string;
+    let propValue: string;
+    const { target } = event as ChangeEventSubset;
+    if (target) {
+      propKey = target.name;
+      propValue = target.value;
+    } else {
+      const { name, value } = event as IOption;
+      propKey = name;
+      propValue = value;
+    }
+    setNewOperation({ ...newOperation, [propKey]: propValue });
+  };
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     // console.log('OPERATION', newOperation);
@@ -48,9 +81,7 @@ export const AddOperation = () => {
   }
 
   function handleRemoveExtraLine(id: string): void {
-    // if (extraSubLines.length > 1) {
     setExtraSubLines(extraSubLines.filter((l) => l !== id));
-    // }
   }
 
   return (
@@ -67,51 +98,61 @@ export const AddOperation = () => {
         >
           <OpLine key={uuidv4()} id={uuidv4()}>
             <>
-              <LabeledField label="Списание" id="credit">
+              <LabeledField label="Списание" id="creditAsset">
                 <Dropdown
-                  id="credit"
-                  optionLabels={['Namba wan', 'Namba tu', 'Namba sri']}
-                  onChange={() => undefined}
+                  name="creditAsset"
+                  id="creditAsset"
+                  options={assetOptions}
+                  onChange={handleChange}
                 />
               </LabeledField>
 
               <Dropdown
-                id="credit-currency"
-                optionLabels={['₽', '$', '€', 'Դ']}
-                onChange={() => undefined}
+                isSimple
+                name="creditAssetCurrency"
+                id="creditAssetCurrency"
+                options={currencySymbols}
+                value={newOperation.creditAssetCurrency}
+                onChange={handleChange}
               />
             </>
             <>
-              <LabeledField label="Зачисление" id="debit">
+              <LabeledField label="Зачисление" id="debitAsset">
                 <Dropdown
-                  id="debit"
-                  optionLabels={['Namba wan', 'Namba tu', 'Namba sri']}
-                  onChange={() => undefined}
+                  name="debitAsset"
+                  id="debitAsset"
+                  options={assetOptions}
+                  onChange={handleChange}
                 />
               </LabeledField>
 
               <Dropdown
-                id="debit-currency"
-                optionLabels={['₽', '$', '€', 'Դ']}
-                onChange={() => undefined}
+                isSimple
+                name="debitAssetCurrency"
+                id="debitAssetCurrency"
+                options={currencySymbols}
+                value={newOperation.debitAssetCurrency}
+                onChange={handleChange}
               />
             </>
             <>
               <div className="display_row">
                 <LabeledField label="Курс" id="rate">
                   <NumericField
+                    name="rate"
                     id="rate"
                     value={85.0}
                     width="narrow"
-                    onChange={() => undefined}
+                    onChange={handleChange}
                   />
                 </LabeledField>
 
-                <LabeledField label="Итого" id="sublines_total">
+                <LabeledField label="Итого" id="sublinesTotal">
                   <NumericField
-                    id="sublines_total"
+                    name="sublinesTotal"
+                    id="sublinesTotal"
                     value={2456425.0}
-                    onChange={() => undefined}
+                    onChange={handleChange}
                   />
                 </LabeledField>
               </div>
@@ -133,14 +174,19 @@ export const AddOperation = () => {
 
           <OpLine key={uuidv4()} id={uuidv4()} freeWidth>
             <LabeledField label="Дата" id="date">
-              <DateField id="date" onChange={() => undefined} />
+              <DateField
+                name="timestamp"
+                id="timestamp"
+                onChange={handleChange}
+              />
             </LabeledField>
 
             <LabeledField label="Примечания" id="comments">
               <CommentsField
+                name="comments"
                 id="comments"
                 value="Лишь сделанные на базе интернет-аналитики выводы описаны максимально подробно..."
-                onChange={() => undefined}
+                onChange={handleChange}
               />
             </LabeledField>
 
