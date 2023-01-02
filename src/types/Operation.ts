@@ -1,9 +1,12 @@
+import { Asset } from './Asset';
 import { CurrencySymbol } from './currencies';
 
 export class Operation {
+  availableAssets: Asset[];
   id: string;
   timestamp: string;
   creditAsset?: string;
+  // private _creditAsset?: string;
   creditValue?: number;
   creditAssetCurrency?: CurrencySymbol;
   debitAsset?: string;
@@ -14,6 +17,7 @@ export class Operation {
   comments?: string;
   relatedOperations?: string[];
   constructor({
+    availableAssets,
     id,
     timestamp,
     creditAsset,
@@ -27,6 +31,7 @@ export class Operation {
     comments,
     relatedOperations,
   }: Operation) {
+    this.availableAssets = availableAssets;
     this.id = id;
     this.timestamp = timestamp;
     this.creditAsset = creditAsset;
@@ -40,4 +45,8 @@ export class Operation {
     this.comments = comments;
     this.relatedOperations = relatedOperations;
   }
+
+  // set creditAsset(id: string) {
+  //   this._creditAsset = id;
+  // }
 }

@@ -1,11 +1,4 @@
-import {
-  FormEvent,
-  ChangeEvent,
-  useEffect,
-  useState,
-  MouseEvent,
-  useMemo,
-} from 'react';
+import { FormEvent, useEffect, useState, useMemo } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import {
   AddLineButton,
@@ -19,22 +12,21 @@ import {
 import './AddOperation.scss';
 import OpLine from './OpLine';
 import OpSubline from './OpSubline';
-import {
-  ChangeEventSubset,
-  GeneralChangeHandler,
-  IOption,
-} from '../form/types';
+import { GeChangeHandler, IOption } from '../form/types';
 import { Operation } from '../../../types/Operation';
 import { currencySymbols } from '../../../types/currencies';
 import { Asset } from '../../../types/Asset';
 import { requestAssets } from '../../utils';
 
 export const AddOperation = () => {
+  const [extraSubLines, setExtraSubLines] = useState<string[]>([uuidv4()]);
+
   /* The form field names must match the properties of the Operation */
   const [newOperation, setNewOperation] = useState(
     new Operation({
       id: uuidv4(),
       timestamp: new Date().toISOString().split('T')[0],
+      availableAssets: [],
     })
   );
   useEffect(() => console.log('newOperation', newOperation), [newOperation]);
@@ -43,27 +35,17 @@ export const AddOperation = () => {
   useEffect(() => {
     requestAssets(setAssets);
   }, []);
+  useEffect(() => {
+    newOperation.availableAssets = assets;
+  }, [assets, newOperation]);
 
-  const assetOptions = useMemo(
-    () => assets.map((a) => ({ value: a.id, name: a.name })),
+  const assetOptions: IOption[] = useMemo(
+    () => assets.map((a) => ({ value: a.id, label: a.name })),
     [assets]
   );
 
-  const [extraSubLines, setExtraSubLines] = useState<string[]>([uuidv4()]);
-
-  const handleChange: GeneralChangeHandler = (event) => {
-    let propKey: string;
-    let propValue: string;
-    const { target } = event as ChangeEventSubset;
-    if (target) {
-      propKey = target.name;
-      propValue = target.value;
-    } else {
-      const { name, value } = event as IOption;
-      propKey = name;
-      propValue = value;
-    }
-    setNewOperation({ ...newOperation, [propKey]: propValue });
+  const handleChange: GeChangeHandler = ({ target }) => {
+    setNewOperation({ ...newOperation, [target.name]: target.value });
   };
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -72,7 +54,7 @@ export const AddOperation = () => {
     /* Pass from Redux to DB */
     try {
       const operationCreated = await window.electron.saveOp(newOperation);
-      console.log('operationCreated', operationCreated);
+      // console.log('operationCreated', operationCreated);
       /* Get all operations from DB and write them to Redux */
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -103,16 +85,21 @@ export const AddOperation = () => {
                   name="creditAsset"
                   id="creditAsset"
                   options={assetOptions}
+                  value={{
+                    value: newOperation.creditAsset,
+                    label: assets.find((a) => a.id === newOperation.creditAsset)
+                      ?.name,
+                  }}
+                  placeholder="Выберите счёт"
                   onChange={handleChange}
                 />
               </LabeledField>
 
               <Dropdown
-                isSimple
                 name="creditAssetCurrency"
                 id="creditAssetCurrency"
                 options={currencySymbols}
-                value={newOperation.creditAssetCurrency}
+                value={newOperation.creditAssetCurrency || ''}
                 onChange={handleChange}
               />
             </>
@@ -122,16 +109,21 @@ export const AddOperation = () => {
                   name="debitAsset"
                   id="debitAsset"
                   options={assetOptions}
+                  value={{
+                    value: newOperation.debitAsset,
+                    label: assets.find((a) => a.id === newOperation.debitAsset)
+                      ?.name,
+                  }}
+                  placeholder="Выберите счёт"
                   onChange={handleChange}
                 />
               </LabeledField>
 
               <Dropdown
-                isSimple
                 name="debitAssetCurrency"
                 id="debitAssetCurrency"
                 options={currencySymbols}
-                value={newOperation.debitAssetCurrency}
+                value={newOperation.debitAssetCurrency || ''}
                 onChange={handleChange}
               />
             </>
@@ -177,6 +169,7 @@ export const AddOperation = () => {
               <DateField
                 name="timestamp"
                 id="timestamp"
+                value={newOperation.timestamp || ''}
                 onChange={handleChange}
               />
             </LabeledField>

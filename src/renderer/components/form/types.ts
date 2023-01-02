@@ -1,36 +1,36 @@
 import { ChangeEvent } from 'react';
 
+export type IOption<T = string> = {
+  value: T | undefined;
+  label: string | undefined;
+};
+export type GeChangeEvent = ChangeEvent<
+  HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+>;
+export type GeChangeHandler = (event: GeChangeEvent) => void;
+
 interface IFormElement {
   // eslint-disable-next-line react/no-unused-prop-types
   disabled?: boolean;
   width?: 'narrow';
 }
 
-export type ChangeEventSubset = ChangeEvent<
-  HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
->;
-
-export type GeneralChangeHandler = (arg: ChangeEventSubset | IOption) => void;
-
 interface IField<T> extends IFormElement {
   // eslint-disable-next-line react/no-unused-prop-types
   id: string;
   name: string;
-  value?: T;
-  onChange: GeneralChangeHandler;
+  value: T;
+  onChange: GeChangeHandler;
 }
 
-export type IOption<T = string> = { value: T; name: string };
-
-export interface IDropdown extends IField<string> {
-  options: string[] | IOption[];
-  isSimple?: boolean;
+export interface IDropdown extends IField<IOption | string> {
+  options: IOption[] | string[];
+  placeholder?: string;
 }
 
-// export interface IFieldLabel extends IFormElement {
-//   htmlFor: string;
-//   label: string;
-// }
+export interface IDropdownSimple extends IField<string> {
+  options: string[];
+}
 
 export type INumericField = IField<number>;
 

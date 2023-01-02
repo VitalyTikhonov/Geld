@@ -9,6 +9,7 @@ module.exports = {
     'import/prefer-default-export': 'off',
     '@typescript-eslint/lines-between-class-members': ['off'],
     'react/jsx-no-bind': 'off',
+    'no-underscore-dangle': ['error', { allowAfterThis: true }],
   },
   parserOptions: {
     ecmaVersion: 2020,

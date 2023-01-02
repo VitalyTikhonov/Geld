@@ -1,35 +1,27 @@
 /* eslint-disable react/require-default-props */
 import cn from 'classnames';
-import { useCallback, useEffect, useState } from 'react';
-import { v4 as uuidv4 } from 'uuid';
+import { useCallback, useMemo } from 'react';
 import Cross from '../ui';
 import './index.scss';
 import {
   IAddLineButton,
   IDropdown,
-  // IFieldLabel,
   ILabeledField,
   INumericField,
-  IOption,
   IRemoveLineButton,
   ISubmitButton,
   ITextField,
 } from './types';
 
 export function Dropdown({
-  isSimple,
   disabled,
   options,
   id,
   value,
   name,
+  placeholder,
   onChange,
 }: IDropdown): JSX.Element {
-  const [localValue, setLocalValue] = useState<IOption>({
-    value: '',
-    name: '',
-  });
-
   return (
     <select
       className={cn(
@@ -39,41 +31,28 @@ export function Dropdown({
       )}
       disabled={disabled}
       id={id}
-      value={isSimple ? value : localValue.value}
+      value={typeof value === 'string' ? value : value?.value}
       name={name}
-      onChange={(e) => onChange(isSimple ? e : localValue)}
+      onChange={onChange}
+      placeholder={placeholder}
     >
       {options.map((option) => {
-        if (isSimple) {
-          return <option key={uuidv4()}>{option as string}</option>;
+        if (typeof option === 'string') {
+          return (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          );
         }
         return (
-          <option
-            key={(option as IOption).value}
-            onClick={() => setLocalValue(option as IOption)}
-          >
-            {(option as IOption).name}
+          <option key={option.value} value={option.value}>
+            {option.label}
           </option>
         );
       })}
     </select>
   );
 }
-
-// export function FieldLabel({
-//   disabled,
-//   htmlFor,
-//   label,
-// }: IFieldLabel): JSX.Element {
-//   return (
-//     <label
-//       className={cn('form--label', { 'form--label-disabled': disabled })}
-//       htmlFor={htmlFor}
-//     >
-//       {label}
-//     </label>
-//   );
-// }
 
 export function NumericField({
   value,
@@ -105,6 +84,7 @@ export function DateField({
   disabled,
   id,
   name,
+  onChange,
 }: ITextField): JSX.Element {
   return (
     <input
@@ -113,6 +93,7 @@ export function DateField({
       className={cn('form--field', { 'form--field-disabled': disabled })}
       disabled={disabled}
       value={value}
+      onChange={onChange}
       id={id}
     />
   );
@@ -176,17 +157,11 @@ export function RemoveLineButton({
   id,
   disabled,
 }: IRemoveLineButton): JSX.Element {
-  // const handleClick = useCallback(() => onClick(id), [onClick, id]);
   const handleClick = useCallback(() => {
     if (onClick && id) {
       onClick(id);
     }
   }, [onClick, id]);
-  // function handleClick() {
-  //   if (onClick && id) {
-  //     onClick(id);
-  //   }
-  // }
 
   return (
     <button
