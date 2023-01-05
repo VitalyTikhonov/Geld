@@ -17,13 +17,13 @@ CREATE TABLE IF NOT EXISTS assets (
 CREATE TABLE IF NOT EXISTS operations (
     id INTEGER PRIMARY KEY,
     timestamp TEXT NOT NULL,
-    creditAsset TEXT NOT NULL,
+    creditAssetId TEXT NOT NULL,
     creditValue REAL NOT NULL,
-    debitAsset TEXT NOT NULL,
+    debitAssetId TEXT NOT NULL,
     debitValue REAL NOT NULL,
     rate REAL NOT NULL,
     categories TEXT NOT NULL,
     comments TEXT,
-    FOREIGN KEY (creditAsset) REFERENCES assets (id),
-    FOREIGN KEY (debitAsset) REFERENCES assets (id)
+    FOREIGN KEY (creditAssetId) REFERENCES assets (id),
+    FOREIGN KEY (debitAssetId) REFERENCES assets (id)
 );

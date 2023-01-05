@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from 'uuid';
 import { CurrencyCode } from './currencies';
 
 export class Asset {
@@ -5,12 +6,12 @@ export class Asset {
   name: string;
   currency: CurrencyCode;
   balance: number;
-  description: string;
-  constructor({ id, name, currency, balance, description }: Asset) {
-    this.id = id;
-    this.name = name;
-    this.currency = currency || CurrencyCode.RUR;
-    this.balance = balance;
-    this.description = description;
+  description?: string;
+
+  constructor() {
+    this.id = uuidv4();
+    this.name = '';
+    this.currency = CurrencyCode.RUR;
+    this.balance = 0;
   }
 }

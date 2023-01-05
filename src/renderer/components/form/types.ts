@@ -4,9 +4,13 @@ export type IOption<T = string> = {
   value: T | undefined;
   label: string | undefined;
 };
-export type GeChangeEvent = ChangeEvent<
-  HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
->;
+export type GeChangeEvent =
+  | ChangeEvent<HTMLInputElement>
+  | ChangeEvent<HTMLTextAreaElement>
+  | ChangeEvent<HTMLSelectElement>;
+// export type GeChangeEvent = ChangeEvent<
+//   HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+// >;
 export type GeChangeHandler = (event: GeChangeEvent) => void;
 
 interface IFormElement {
@@ -19,8 +23,10 @@ interface IField<T> extends IFormElement {
   // eslint-disable-next-line react/no-unused-prop-types
   id: string;
   name: string;
-  value: T;
-  onChange: GeChangeHandler;
+  value?: T;
+  defaultValue?: T;
+  onChange?: GeChangeHandler;
+  mutateUpperScopeValue?: (arg: T) => void;
 }
 
 export interface IDropdown extends IField<IOption | string> {

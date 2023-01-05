@@ -49,7 +49,7 @@ export default function Categories(): JSX.Element {
   // }
 
   const [tags, setTags] = useState<Tag[]>([]);
-  useEffect(() => console.log('tags', tags), [tags]);
+  // useEffect(() => console.log('tags', tags), [tags]);
 
   const KeyCodes = {
     comma: 188,

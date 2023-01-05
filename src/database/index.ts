@@ -27,16 +27,16 @@ const CREATE_OPERATIONS_TABLE_QUERY = {
     CREATE TABLE IF NOT EXISTS operations (
       id TEXT NOT NULL PRIMARY KEY,
       timestamp TEXT NOT NULL,
-      creditAsset TEXT NOT NULL,
+      creditAssetId TEXT NOT NULL,
       creditValue REAL NOT NULL,
-      debitAsset TEXT NOT NULL,
+      debitAssetId TEXT NOT NULL,
       debitValue REAL NOT NULL,
       rate REAL NOT NULL,
       categories TEXT NOT NULL,
       comments TEXT,
       relatedOperations TEXT,
-      FOREIGN KEY (creditAsset) REFERENCES assets (id) ON DELETE CASCADE ON UPDATE NO ACTION,
-      FOREIGN KEY (debitAsset) REFERENCES assets (id) ON DELETE CASCADE ON UPDATE NO ACTION
+      FOREIGN KEY (creditAssetId) REFERENCES assets (id) ON DELETE CASCADE ON UPDATE NO ACTION,
+      FOREIGN KEY (debitAssetId) REFERENCES assets (id) ON DELETE CASCADE ON UPDATE NO ACTION
     );
   `,
 };
@@ -122,9 +122,9 @@ class DBConnection {
       id,
       timestamp,
       rate,
-      creditAsset,
+      creditAssetId,
       creditValue,
-      debitAsset,
+      debitAssetId,
       debitValue,
       comments,
       categories,
@@ -133,13 +133,13 @@ class DBConnection {
     return new Promise<DBResponse<Operation>>((resolve, reject) => {
       try {
         this.db.get(
-          'INSERT INTO operations VALUES($id, $timestamp, $creditAsset, $creditValue, $debitAsset, $debitValue, $rate, $categories, $comments, $relatedOperations) RETURNING rowid, *;',
+          'INSERT INTO operations VALUES($id, $timestamp, $creditAssetId, $creditValue, $debitAssetId, $debitValue, $rate, $categories, $comments, $relatedOperations) RETURNING rowid, *;',
           {
             $id: id,
             $timestamp: timestamp,
-            $creditAsset: creditAsset,
+            $creditAssetId: creditAssetId,
             $creditValue: creditValue,
-            $debitAsset: debitAsset,
+            $debitAssetId: debitAssetId,
             $debitValue: debitValue,
             $rate: rate,
             $categories: categories,

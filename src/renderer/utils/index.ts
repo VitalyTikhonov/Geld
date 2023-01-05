@@ -1,5 +1,5 @@
 import cn from 'classnames';
-import { Dispatch, SetStateAction } from 'react';
+import { DBResponse } from 'types';
 import { Asset } from '../../types/Asset';
 
 type Props = { isActive: boolean };
@@ -10,9 +10,6 @@ export function setClassnames({ isActive }: Props): string {
     : 'sidebar--menu_link menu_link';
 }
 
-export async function requestAssets(
-  set: Dispatch<SetStateAction<Asset[]>>
-): Promise<void> {
-  const updated = await window.electron.getAssets();
-  set(updated as Asset[]);
+export async function requestAssets(): Promise<DBResponse<Asset[]>> {
+  return window.electron.getAssets();
 }

@@ -1,9 +1,10 @@
 /* eslint-disable react/require-default-props */
 import cn from 'classnames';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import Cross from '../ui';
 import './index.scss';
 import {
+  GeChangeEvent,
   IAddLineButton,
   IDropdown,
   ILabeledField,
@@ -80,12 +81,14 @@ export function NumericField({
 }
 
 export function DateField({
-  value,
+  defaultValue,
   disabled,
   id,
   name,
-  onChange,
+  mutateUpperScopeValue,
 }: ITextField): JSX.Element {
+  const [value, setValue] = useState(defaultValue);
+
   return (
     <input
       type="date"
@@ -93,25 +96,37 @@ export function DateField({
       className={cn('form--field', { 'form--field-disabled': disabled })}
       disabled={disabled}
       value={value}
-      onChange={onChange}
+      onChange={(e: GeChangeEvent) => {
+        setValue(e.target.value);
+        if (mutateUpperScopeValue) {
+          mutateUpperScopeValue(e.target.value);
+        }
+      }}
       id={id}
     />
   );
 }
 
 export function CommentsField({
-  value,
+  defaultValue,
   name,
   id,
-  onChange,
+  mutateUpperScopeValue,
 }: ITextField): JSX.Element {
+  const [value, setValue] = useState(defaultValue);
+
   return (
     <textarea
       name={name}
       className={cn('form--field', 'form--field-area')}
       value={value}
       id={id}
-      onChange={onChange}
+      onChange={(e: GeChangeEvent) => {
+        setValue(e.target.value);
+        if (mutateUpperScopeValue) {
+          mutateUpperScopeValue(e.target.value);
+        }
+      }}
     />
   );
 }
