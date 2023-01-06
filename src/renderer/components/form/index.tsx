@@ -1,6 +1,6 @@
 /* eslint-disable react/require-default-props */
 import cn from 'classnames';
-import { useCallback, useMemo, useState } from 'react';
+import { ChangeEvent, useCallback, useMemo, useState } from 'react';
 import Cross from '../ui';
 import './index.scss';
 import {
@@ -9,6 +9,7 @@ import {
   IDropdown,
   ILabeledField,
   INumericField,
+  IOption,
   IRemoveLineButton,
   ISubmitButton,
   ITextField,
@@ -18,11 +19,13 @@ export function Dropdown({
   disabled,
   options,
   id,
-  value,
+  defaultValue,
+  passValue,
   name,
   placeholder,
-  onChange,
 }: IDropdown): JSX.Element {
+  const [value, setValue] = useState(defaultValue);
+
   return (
     <select
       className={cn(
@@ -34,7 +37,18 @@ export function Dropdown({
       id={id}
       value={typeof value === 'string' ? value : value?.value}
       name={name}
-      onChange={onChange}
+      onChange={(e: GeChangeEvent) => {
+        if (typeof value === 'string') {
+          setValue(e.target.value);
+        } else {
+          const optionsTyped = options as IOption[];
+          const match = optionsTyped.find((o) => o.value === e.target.value);
+          if (match) {
+            setValue(match);
+            passValue(match);
+          }
+        }
+      }}
       placeholder={placeholder}
     >
       {options.map((option) => {
@@ -56,13 +70,16 @@ export function Dropdown({
 }
 
 export function NumericField({
-  value,
-  onChange,
+  defaultValue,
+  passValue,
   disabled,
   id,
   width,
   name,
+  placeholder,
 }: INumericField): JSX.Element {
+  const [value, setValue] = useState(defaultValue);
+
   return (
     <input
       type="number"
@@ -73,9 +90,15 @@ export function NumericField({
       })}
       disabled={disabled}
       value={value}
-      onChange={onChange}
+      onChange={(e: ChangeEvent<HTMLInputElement>) => {
+        setValue(e.target.valueAsNumber);
+      }}
+      onBlur={(e: ChangeEvent<HTMLInputElement>) => {
+        passValue(e.target.valueAsNumber);
+      }}
       id={id}
       step="0.01"
+      placeholder={placeholder}
     />
   );
 }
@@ -85,7 +108,7 @@ export function DateField({
   disabled,
   id,
   name,
-  mutateUpperScopeValue,
+  passValue,
 }: ITextField): JSX.Element {
   const [value, setValue] = useState(defaultValue);
 
@@ -98,9 +121,7 @@ export function DateField({
       value={value}
       onChange={(e: GeChangeEvent) => {
         setValue(e.target.value);
-        if (mutateUpperScopeValue) {
-          mutateUpperScopeValue(e.target.value);
-        }
+        passValue(e.target.value);
       }}
       id={id}
     />
@@ -108,10 +129,10 @@ export function DateField({
 }
 
 export function CommentsField({
-  defaultValue,
   name,
   id,
-  mutateUpperScopeValue,
+  defaultValue,
+  passValue,
 }: ITextField): JSX.Element {
   const [value, setValue] = useState(defaultValue);
 
@@ -123,9 +144,7 @@ export function CommentsField({
       id={id}
       onChange={(e: GeChangeEvent) => {
         setValue(e.target.value);
-        if (mutateUpperScopeValue) {
-          mutateUpperScopeValue(e.target.value);
-        }
+        passValue(e.target.value);
       }}
     />
   );
@@ -157,6 +176,7 @@ export function AddLineButton({
 }: IAddLineButton): JSX.Element {
   return (
     <button
+      id="addLineButton"
       type="button"
       disabled={disabled}
       onClick={onClick}
@@ -191,15 +211,11 @@ export function RemoveLineButton({
   );
 }
 
-export function SubmitButton({
-  disabled,
-  onClick,
-}: ISubmitButton): JSX.Element {
+export function SubmitButton({ disabled }: ISubmitButton): JSX.Element {
   return (
     <button
-      type="button"
+      type="submit"
       disabled={disabled}
-      onClick={onClick}
       className={cn(
         'form--button',
         { 'form--button-disabled': disabled },

@@ -13,7 +13,15 @@ function Suggestions({ text }: { text: string }, query: string): JSX.Element {
   return <>{text}</>;
 }
 
-export default function Categories(): JSX.Element {
+interface ICategories {
+  id: string;
+  defaultValue: string[];
+  passValue: (args: string[]) => void;
+}
+
+export default function Categories(props: ICategories): JSX.Element {
+  const { id, defaultValue, passValue } = props;
+
   const suggestions: Tag[] = [
     { id: 'Thailand', text: 'Thailand' },
     { id: 'India', text: 'India' },
@@ -48,8 +56,13 @@ export default function Categories(): JSX.Element {
   //   return sortedOptions;
   // }
 
-  const [tags, setTags] = useState<Tag[]>([]);
-  // useEffect(() => console.log('tags', tags), [tags]);
+  const [tags, setTags] = useState<Tag[]>(
+    defaultValue.map((category) => ({ id: category, text: category }))
+  );
+  useEffect(() => {
+    passValue(tags.map((tag) => tag.id));
+    // console.log('tags', tags);
+  }, [tags]);
 
   const KeyCodes = {
     comma: 188,
@@ -78,8 +91,8 @@ export default function Categories(): JSX.Element {
 
   return (
     <ReactTags
-      id="categories"
-      placeholder="Выберите категории…"
+      id={id}
+      placeholder="Категории"
       tags={tags}
       suggestions={suggestions}
       // handleFilterSuggestions={handleFilterSuggestions}

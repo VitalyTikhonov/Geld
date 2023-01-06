@@ -24,8 +24,6 @@ import { requestAssets } from '../../utils';
 import { useOperationPole } from '../../../utilsGeneral/useOperationPole';
 
 export const AddOperation = () => {
-  const [extraSubLines, setExtraSubLines] = useState<string[]>([uuidv4()]);
-
   const [operation, setOperation] = useState(new Operation());
   useEffect(() => console.log('operation', operation), [operation]);
 
@@ -46,24 +44,55 @@ export const AddOperation = () => {
 
   const credit = useOperationPole();
   const debit = useOperationPole();
+  useEffect(() => {
+    operation.creditAssetId = credit.asset.id;
+    operation.creditCurrency = credit.asset.currency;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [credit]);
+  useEffect(() => {
+    operation.debitAssetId = debit.asset.id;
+    operation.debitCurrency = debit.asset.currency;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debit]);
+
+  type SubLine = {
+    id: string;
+    creditAmount: number;
+    debitAmount: number;
+    categories: string[];
+  };
+  const [subLines, setSubLines] = useState<SubLine[]>([
+    {
+      id: uuidv4(),
+      creditAmount: 0,
+      debitAmount: 0,
+      categories: [],
+    },
+  ]);
+  useEffect(() => console.log('subLines', subLines), [subLines]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    // console.log('OPERATION', newOperation);
+    console.log('handleSubmit event', event);
+    console.log(
+      'handleSubmit Object.entries(event.target)',
+      Object.entries(event.target)
+    );
+    console.log('handleSubmit operation', operation);
     event.preventDefault();
     /* Pass from Redux to DB */
-    try {
-      // const operation = new Operation();
-      await window.electron.saveOp(operation);
-      // console.log('operationCreated', operationCreated);
-      /* Get all operations from DB and write them to Redux */
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log('error', error);
-    }
+    // try {
+    //   // const operation = new Operation();
+    //   await window.electron.saveOp(operation);
+    //   // console.log('operationCreated', operationCreated);
+    //   /* Get all operations from DB and write them to Redux */
+    // } catch (error) {
+    //   // eslint-disable-next-line no-console
+    //   console.log('error', error);
+    // }
   }
 
   function handleRemoveExtraLine(id: string): void {
-    setExtraSubLines(extraSubLines.filter((l) => l !== id));
+    setSubLines(subLines.filter((l) => l.id !== id));
   }
 
   return (
@@ -85,27 +114,33 @@ export const AddOperation = () => {
                   name="creditAssetId"
                   id="creditAssetId"
                   options={assetOptions}
-                  value={{
+                  defaultValue={{
                     value: credit.option.value,
                     label: credit.option.label,
                   }}
                   placeholder="Выберите счёт"
-                  onChange={(e: GeChangeEvent) =>
-                    credit.replace(assets.find((a) => a.id === e.target.value))
+                  passValue={(newValue) =>
+                    credit.replace(
+                      assets.find(
+                        (a) => a.id === (newValue as IOption<string>).value
+                      )
+                    )
                   }
                 />
               </LabeledField>
 
               <Dropdown
-                name="creditAssetCurrency"
-                id="creditAssetCurrency"
+                name="creditCurrency"
+                id="creditCurrency"
                 options={currencyOptions}
-                value={{
+                defaultValue={{
                   value: credit.asset.currency,
                   label: CurrencySymbol[credit.asset.currency],
                 }}
-                onChange={(e: GeChangeEvent) =>
-                  credit.changeCurrency(e.target.value as CurrencyCode)
+                passValue={(newValue) =>
+                  credit.changeCurrency(
+                    (newValue as IOption<string>).value as CurrencyCode
+                  )
                 }
               />
             </>
@@ -115,39 +150,45 @@ export const AddOperation = () => {
                   name="debitAssetId"
                   id="debitAssetId"
                   options={assetOptions}
-                  value={{
+                  defaultValue={{
                     value: debit.option.value,
                     label: debit.option.label,
                   }}
                   placeholder="Выберите счёт"
-                  onChange={(e: GeChangeEvent) =>
-                    debit.replace(assets.find((a) => a.id === e.target.value))
+                  passValue={(newValue) =>
+                    debit.replace(
+                      assets.find(
+                        (a) => a.id === (newValue as IOption<string>).value
+                      )
+                    )
                   }
                 />
               </LabeledField>
 
               <Dropdown
-                name="debitAssetCurrency"
-                id="debitAssetCurrency"
+                name="debitCurrency"
+                id="debitCurrency"
                 options={currencyOptions}
-                value={{
+                defaultValue={{
                   value: debit.asset.currency,
                   label: CurrencySymbol[debit.asset.currency],
                 }}
-                onChange={(e: GeChangeEvent) =>
-                  debit.changeCurrency(e.target.value as CurrencyCode)
+                passValue={(newValue) =>
+                  debit.changeCurrency(
+                    (newValue as IOption<string>).value as CurrencyCode
+                  )
                 }
               />
             </>
             <>
               <div className="display_row">
-                <LabeledField label="Курс" id="rate">
+                {/* <LabeledField label="Курс" id="rate">
                   <NumericField
                     name="rate"
                     id="rate"
-                    value={85.0}
+                    defaultValue={85.0}
                     width="narrow"
-                    onChange={() => undefined}
+                    passValue={() => undefined}
                   />
                 </LabeledField>
 
@@ -155,24 +196,56 @@ export const AddOperation = () => {
                   <NumericField
                     name="sublinesTotal"
                     id="sublinesTotal"
-                    value={2456425.0}
-                    onChange={() => undefined}
+                    defaultValue={2456425.0}
+                    passValue={() => undefined}
                   />
-                </LabeledField>
+                </LabeledField> */}
               </div>
 
               <AddLineButton
-                onClick={() => setExtraSubLines([...extraSubLines, uuidv4()])}
+                onClick={() =>
+                  setSubLines([
+                    ...subLines,
+                    {
+                      id: uuidv4(),
+                      creditAmount: 0,
+                      debitAmount: 0,
+                      categories: [],
+                    },
+                  ])
+                }
               />
             </>
           </OpLine>
 
-          {extraSubLines.map((sl) => (
+          {subLines.map((line) => (
             <OpSubline
-              key={sl}
-              id={sl}
+              key={line.id}
+              id={line.id}
               handleRemoveExtraLine={handleRemoveExtraLine}
-              isSingle={extraSubLines.length === 1}
+              isSingle={subLines.length === 1}
+              credit={{
+                defaultValue: line.creditAmount,
+                passValue: (newValue) => {
+                  line.creditAmount = newValue;
+                  credit.changeTotal(credit.total + newValue);
+                  operation.creditValue += newValue;
+                },
+              }}
+              debit={{
+                defaultValue: line.debitAmount,
+                passValue: (newValue) => {
+                  line.debitAmount = newValue;
+                  debit.changeTotal(debit.total + newValue);
+                  operation.debitValue += newValue;
+                },
+              }}
+              categories={{
+                defaultValue: line.categories,
+                passValue: (newCategories) => {
+                  line.categories = newCategories;
+                },
+              }}
             />
           ))}
 
@@ -182,7 +255,7 @@ export const AddOperation = () => {
                 name="timestamp"
                 id="timestamp"
                 defaultValue={operation.timestamp}
-                mutateUpperScopeValue={(value: string) => {
+                passValue={(value: string) => {
                   operation.timestamp = value;
                 }}
               />
@@ -192,14 +265,14 @@ export const AddOperation = () => {
               <CommentsField
                 name="comments"
                 id="comments"
-                defaultValue={operation.comments}
-                mutateUpperScopeValue={(value: string) => {
+                defaultValue={operation.comments || ''}
+                passValue={(value: string) => {
                   operation.comments = value;
                 }}
               />
             </LabeledField>
 
-            <SubmitButton onClick={() => undefined} />
+            <SubmitButton />
           </OpLine>
         </form>
       </div>

@@ -156,7 +156,7 @@ function callDevMethod(i: number) {
       logLabeled('assets', assets);
       (assets as Asset[]).forEach((a) => {
         a.id = v4();
-        dbConnection.handleSaveAsset(new Asset(a));
+        dbConnection.handleSaveAsset(a);
       });
     },
   ];

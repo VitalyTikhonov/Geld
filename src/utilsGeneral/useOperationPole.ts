@@ -10,6 +10,7 @@ const blankOption = {
 
 export function useOperationPole() {
   const [asset, setAsset] = useState<Asset>(new Asset());
+  const [total, setTotal] = useState(0);
   const [option, setOption] = useState<IOption>(blankOption);
 
   function replace(newAsset: Asset | undefined) {
@@ -29,12 +30,16 @@ export function useOperationPole() {
     setOption(blankOption);
   }
 
-  function changeBalance(amount: number) {
-    setAsset((existing) => ({
-      ...existing,
-      balance: existing.balance + amount,
-    }));
+  function changeTotal(amount: number) {
+    setTotal(amount);
   }
 
-  return { asset, option, replace, changeCurrency, changeBalance };
+  return {
+    asset,
+    total,
+    option,
+    replace,
+    changeCurrency,
+    changeTotal,
+  };
 }

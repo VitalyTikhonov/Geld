@@ -1,12 +1,22 @@
-import { MouseEvent, useEffect } from 'react';
-import { LabeledField, NumericField, RemoveLineButton } from '../form';
+import { NumericField, RemoveLineButton } from '../form';
 import Categories from './Categories';
 import OpLine from './OpLine';
 
 interface IOpSubline {
   id: string;
-  // eslint-disable-next-line react/require-default-props
-  handleRemoveExtraLine?: (id: string) => void;
+  credit: {
+    defaultValue: number;
+    passValue: (arg: number) => void;
+  };
+  debit: {
+    defaultValue: number;
+    passValue: (arg: number) => void;
+  };
+  categories: {
+    defaultValue: string[];
+    passValue: (args: string[]) => void;
+  };
+  handleRemoveExtraLine: (id: string) => void;
   isSingle: boolean;
 }
 
@@ -14,59 +24,40 @@ export default function OpSubline({
   id,
   handleRemoveExtraLine,
   isSingle,
+  credit,
+  debit,
+  categories,
 }: IOpSubline): JSX.Element {
-  // useEffect(() => {
-  //   console.clear();
-  //   console.log(isSingle);
-  // }, [isSingle]);
-
-  if (handleRemoveExtraLine) {
-    return (
-      <OpLine id={id}>
-        <NumericField
-          id="credit-amount"
-          value={7445000.0}
-          onChange={() => undefined}
-        />
-
-        <NumericField
-          id="debit-amount"
-          value={7445000.0}
-          onChange={() => undefined}
-        />
-
-        <>
-          <Categories />
-          <RemoveLineButton
-            id={id}
-            onClick={handleRemoveExtraLine}
-            disabled={isSingle}
-          />
-        </>
-      </OpLine>
-    );
-  }
   return (
     <OpLine id={id}>
-      <LabeledField label="Сумма списания" id="credit-amount">
-        <NumericField
-          id="credit-amount"
-          value={7445000.0}
-          onChange={() => undefined}
-        />
-      </LabeledField>
+      <NumericField
+        id={`credit-amount-${id}`}
+        name={`credit-amount-${id}`}
+        defaultValue={credit.defaultValue}
+        passValue={credit.passValue}
+        placeholder="Сумма списания"
+      />
 
-      <LabeledField label="Сумма зачисления" id="debit-amount">
-        <NumericField
-          id="debit-amount"
-          value={7445000.0}
-          onChange={() => undefined}
-        />
-      </LabeledField>
+      <NumericField
+        id={`debit-amount-${id}`}
+        name={`debit-amount-${id}`}
+        defaultValue={debit.defaultValue}
+        passValue={debit.passValue}
+        placeholder="Сумма зачисления"
+      />
 
-      <LabeledField label="Категории" id="credit-amount">
-        <Categories />
-      </LabeledField>
+      <>
+        <Categories
+          id={`categories-${id}`}
+          defaultValue={categories.defaultValue}
+          passValue={categories.passValue}
+        />
+        <RemoveLineButton
+          id={id} // Не изменять id
+          onClick={handleRemoveExtraLine}
+          disabled={isSingle}
+        />
+      </>
     </OpLine>
   );
 }

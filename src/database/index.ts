@@ -34,7 +34,7 @@ const CREATE_OPERATIONS_TABLE_QUERY = {
       rate REAL NOT NULL,
       categories TEXT NOT NULL,
       comments TEXT,
-      relatedOperations TEXT,
+      operationGroupId TEXT,
       FOREIGN KEY (creditAssetId) REFERENCES assets (id) ON DELETE CASCADE ON UPDATE NO ACTION,
       FOREIGN KEY (debitAssetId) REFERENCES assets (id) ON DELETE CASCADE ON UPDATE NO ACTION
     );
@@ -128,12 +128,12 @@ class DBConnection {
       debitValue,
       comments,
       categories,
-      relatedOperations,
+      operationGroupId,
     } = operation;
     return new Promise<DBResponse<Operation>>((resolve, reject) => {
       try {
         this.db.get(
-          'INSERT INTO operations VALUES($id, $timestamp, $creditAssetId, $creditValue, $debitAssetId, $debitValue, $rate, $categories, $comments, $relatedOperations) RETURNING rowid, *;',
+          'INSERT INTO operations VALUES($id, $timestamp, $creditAssetId, $creditValue, $debitAssetId, $debitValue, $rate, $categories, $comments, $operationGroupId) RETURNING rowid, *;',
           {
             $id: id,
             $timestamp: timestamp,
@@ -144,7 +144,7 @@ class DBConnection {
             $rate: rate,
             $categories: categories,
             $comments: comments,
-            $relatedOperations: relatedOperations?.join(', ') ?? '',
+            $operationGroupId: operationGroupId,
           },
           function (error, row) {
             if (error) {

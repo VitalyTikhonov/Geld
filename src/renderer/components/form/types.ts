@@ -8,9 +8,7 @@ export type GeChangeEvent =
   | ChangeEvent<HTMLInputElement>
   | ChangeEvent<HTMLTextAreaElement>
   | ChangeEvent<HTMLSelectElement>;
-// export type GeChangeEvent = ChangeEvent<
-//   HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-// >;
+
 export type GeChangeHandler = (event: GeChangeEvent) => void;
 
 interface IFormElement {
@@ -23,15 +21,13 @@ interface IField<T> extends IFormElement {
   // eslint-disable-next-line react/no-unused-prop-types
   id: string;
   name: string;
-  value?: T;
-  defaultValue?: T;
-  onChange?: GeChangeHandler;
-  mutateUpperScopeValue?: (arg: T) => void;
+  defaultValue: T;
+  passValue: (arg: T) => void;
+  placeholder?: string;
 }
 
 export interface IDropdown extends IField<IOption | string> {
   options: IOption[] | string[];
-  placeholder?: string;
 }
 
 export interface IDropdownSimple extends IField<string> {
@@ -42,9 +38,7 @@ export type INumericField = IField<number>;
 
 export type ITextField = IField<string>;
 
-export interface ISubmitButton extends IFormElement {
-  onClick: (...args: unknown[]) => unknown;
-}
+export type ISubmitButton = IFormElement;
 
 export interface IRemoveLineButton extends IFormElement {
   onClick: (id: string) => void;

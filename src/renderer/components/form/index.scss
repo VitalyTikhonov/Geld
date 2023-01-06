@@ -64,6 +64,7 @@
   font-size: 14px;
   line-height: 17px;
   color: #91e5f6;
+  box-sizing: border-box;
 
   &-submit {
     width: 300px;
@@ -79,14 +80,30 @@
     align-items: center;
     width: 21px;
     height: 21px;
-    background: #7284968c;
+  }
 
-    &:disabled {
-      background: #3C4248;
+  &:hover {
+    box-shadow: 0px 0px 24px -7px #91e5f6;
+    border: 1px solid #91e5f6a1;
+  }
 
-      & .form--cross {
-        fill: #555859;
-      }
+  &:active {
+    // box-shadow: none;
+    box-shadow: 0px 0px 24px -10px #91e5f6;
+    border: 1px solid #91e5f6;
+  }
+
+  &:disabled {
+    background: #386fa48c;
+    color: #133c55;
+
+    &:hover {
+      // box-shadow: none;
+      border: none;
+    }
+
+    & .form--cross {
+      fill: #133c55;
     }
   }
 }

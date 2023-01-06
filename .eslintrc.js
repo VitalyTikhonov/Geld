@@ -10,6 +10,7 @@ module.exports = {
     '@typescript-eslint/lines-between-class-members': ['off'],
     'react/jsx-no-bind': 'off',
     'no-underscore-dangle': ['error', { allowAfterThis: true }],
+    'react-hooks/exhaustive-deps': 'warn',
   },
   parserOptions: {
     ecmaVersion: 2020,
