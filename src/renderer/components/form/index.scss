@@ -31,6 +31,10 @@
       width: 70px;
     }
   }
+
+  &:disabled {
+    background-color: #386FA4;
+  }
 }
 
 .form--label {
@@ -98,7 +102,7 @@
     color: #133c55;
 
     &:hover {
-      // box-shadow: none;
+      box-shadow: none;
       border: none;
     }
 

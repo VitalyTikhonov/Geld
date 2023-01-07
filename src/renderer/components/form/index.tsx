@@ -89,11 +89,9 @@ export function NumericField({
         [`form--field-numeric-${width}`]: Boolean(width),
       })}
       disabled={disabled}
-      value={value}
+      value={value !== 0 ? value : ''}
       onChange={(e: ChangeEvent<HTMLInputElement>) => {
         setValue(e.target.valueAsNumber);
-      }}
-      onBlur={(e: ChangeEvent<HTMLInputElement>) => {
         passValue(e.target.valueAsNumber);
       }}
       id={id}

@@ -8,6 +8,7 @@ interface IOpLine {
   freeWidth?: boolean;
 }
 
+/** Creates a row of three elements ("columns") */
 export default function OpLine(props: IOpLine) {
   const { id, children, freeWidth } = props;
 

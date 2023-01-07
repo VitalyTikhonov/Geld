@@ -35,7 +35,7 @@ export default function OpSubline({
         name={`credit-amount-${id}`}
         defaultValue={credit.defaultValue}
         passValue={credit.passValue}
-        placeholder="Сумма списания"
+        placeholder="Сумма"
       />
 
       <NumericField
@@ -43,7 +43,7 @@ export default function OpSubline({
         name={`debit-amount-${id}`}
         defaultValue={debit.defaultValue}
         passValue={debit.passValue}
-        placeholder="Сумма зачисления"
+        placeholder="Сумма"
       />
 
       <>

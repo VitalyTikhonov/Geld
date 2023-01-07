@@ -44,6 +44,8 @@ export const AddOperation = () => {
 
   const credit = useOperationPole();
   const debit = useOperationPole();
+  useEffect(() => console.log('credit.total', credit.total), [credit.total]);
+  useEffect(() => console.log('debit.total', debit.total), [debit.total]);
   useEffect(() => {
     operation.creditAssetId = credit.asset.id;
     operation.creditCurrency = credit.asset.currency;
@@ -69,15 +71,33 @@ export const AddOperation = () => {
       categories: [],
     },
   ]);
-  useEffect(() => console.log('subLines', subLines), [subLines]);
+
+  function sumSubLines(
+    property: 'creditAmount' | 'debitAmount',
+    updater: (n: number) => void
+  ): void {
+    let result = 0;
+    subLines.forEach((line) => {
+      result += line[property];
+    });
+    updater(result);
+  }
+
+  function calculateRate(): number {
+    const larger = Math.max(credit.total, debit.total);
+    const smaller = Math.min(credit.total, debit.total);
+    return Number((larger / smaller).toFixed(2));
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    console.log('handleSubmit event', event);
-    console.log(
-      'handleSubmit Object.entries(event.target)',
-      Object.entries(event.target)
-    );
-    console.log('handleSubmit operation', operation);
+    // console.log('handleSubmit event', event);
+    // console.log(
+    //   'handleSubmit Object.entries(event.target)',
+    //   Object.entries(event.target)
+    // );
+    console.log('handleSubmit subLines', subLines);
+    console.log('handleSubmit operation.creditValue', operation.creditValue);
+    console.log('handleSubmit operation.debitValue', operation.debitValue);
     event.preventDefault();
     /* Pass from Redux to DB */
     // try {
@@ -94,6 +114,11 @@ export const AddOperation = () => {
   function handleRemoveExtraLine(id: string): void {
     setSubLines(subLines.filter((l) => l.id !== id));
   }
+
+  useEffect(() => {
+    sumSubLines('creditAmount', credit.changeTotal);
+    sumSubLines('debitAmount', debit.changeTotal);
+  }, [subLines.length]);
 
   return (
     <>
@@ -182,24 +207,20 @@ export const AddOperation = () => {
             </>
             <>
               <div className="display_row">
-                {/* <LabeledField label="Курс" id="rate">
-                  <NumericField
-                    name="rate"
-                    id="rate"
-                    defaultValue={85.0}
-                    width="narrow"
-                    passValue={() => undefined}
-                  />
-                </LabeledField>
-
-                <LabeledField label="Итого" id="sublinesTotal">
-                  <NumericField
-                    name="sublinesTotal"
-                    id="sublinesTotal"
-                    defaultValue={2456425.0}
-                    passValue={() => undefined}
-                  />
-                </LabeledField> */}
+                {credit.total > 0 &&
+                  debit.total > 0 &&
+                  credit.asset.currency !== debit.asset.currency && (
+                    <LabeledField label="Курс" id="rate" disabled>
+                      <NumericField
+                        name="rate"
+                        id="rate"
+                        defaultValue={calculateRate()}
+                        width="narrow"
+                        passValue={() => undefined}
+                        disabled
+                      />
+                    </LabeledField>
+                  )}
               </div>
 
               <AddLineButton
@@ -228,16 +249,14 @@ export const AddOperation = () => {
                 defaultValue: line.creditAmount,
                 passValue: (newValue) => {
                   line.creditAmount = newValue;
-                  credit.changeTotal(credit.total + newValue);
-                  operation.creditValue += newValue;
+                  sumSubLines('creditAmount', credit.changeTotal);
                 },
               }}
               debit={{
                 defaultValue: line.debitAmount,
                 passValue: (newValue) => {
                   line.debitAmount = newValue;
-                  debit.changeTotal(debit.total + newValue);
-                  operation.debitValue += newValue;
+                  sumSubLines('debitAmount', debit.changeTotal);
                 },
               }}
               categories={{
@@ -248,6 +267,30 @@ export const AddOperation = () => {
               }}
             />
           ))}
+
+          {subLines.length > 1 && (
+            <OpLine key={uuidv4()} id={uuidv4()}>
+              <LabeledField label="Итого" id="sublinesTotal" disabled>
+                <NumericField
+                  name="creditSubLinesTotal"
+                  id="creditSubLinesTotal"
+                  defaultValue={credit.total}
+                  passValue={() => undefined}
+                  disabled
+                />
+              </LabeledField>
+
+              <LabeledField label="Итого" id="sublinesTotal" disabled>
+                <NumericField
+                  name="debitSubLinesTotal"
+                  id="debitSubLinesTotal"
+                  defaultValue={debit.total}
+                  passValue={() => undefined}
+                  disabled
+                />
+              </LabeledField>
+            </OpLine>
+          )}
 
           <OpLine key={uuidv4()} id={uuidv4()} freeWidth>
             <LabeledField label="Дата" id="date">
