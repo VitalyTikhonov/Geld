@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useState, useMemo, ChangeEvent } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import {
   AddLineButton,
@@ -13,7 +13,7 @@ import {
 import './AddOperation.scss';
 import OpLine from './OpLine';
 import OpSubline from './OpSubline';
-import { GeChangeEvent, GeChangeHandler, IOption } from '../form/types';
+import { IOption } from '../form/types';
 import { Operation } from '../../../types/Operation';
 import {
   CurrencyCode,
@@ -21,51 +21,34 @@ import {
   CurrencySymbol,
 } from '../../../types/currencies';
 import { Asset } from '../../../types/Asset';
-import { requestAssets } from '../../utils';
+import { requestAssets } from '../../utils/index';
+import { makeCurrentDate } from '../../utils/timestamps';
 import { useOperationPole } from '../../../utilsGeneral/useOperationPole';
 import categories from '../../../configs/categories.json';
 
-export const AddOperation = () => {
-  const [operation, setOperation] = useState(new Operation());
-  useEffect(() => console.log('operation', operation), [operation]);
+type SubLine = {
+  id: string;
+  creditAmount: number;
+  debitAmount: number;
+  categories: string[];
+  isCatError: boolean;
+};
 
+type OperationStub = Pick<Operation, 'timestamp' | 'comments' | 'rate'>;
+
+export const AddOperation = () => {
+  /* ======================================================================== STATE */
   const [assets, setAssets] = useState<Asset[]>([]);
   const [assetOptions, setAssetOptions] = useState<IOption[]>([
     { value: '', label: 'Выберите счёт' },
   ]);
-  useEffect(() => {
-    async function downloadAssets() {
-      const newAssets = (await requestAssets()) as Asset[];
-      setAssets(newAssets);
-      setAssetOptions((state) =>
-        state.concat(newAssets.map((i) => ({ value: i.id, label: i.name })))
-      );
-    }
-    downloadAssets();
-  }, []);
-
+  const [operationStub, setOperationStub] = useState<OperationStub>({
+    timestamp: makeCurrentDate(),
+    comments: '',
+    rate: 0,
+  });
   const credit = useOperationPole();
   const debit = useOperationPole();
-  // useEffect(() => console.log('credit.total', credit.total), [credit.total]);
-  // useEffect(() => console.log('debit.total', debit.total), [debit.total]);
-  useEffect(() => {
-    operation.creditAssetId = credit.asset.id;
-    operation.creditCurrencyCode = credit.asset.currency;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [credit]);
-  useEffect(() => {
-    operation.debitAssetId = debit.asset.id;
-    operation.debitCurrencyCode = debit.asset.currency;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debit]);
-
-  type SubLine = {
-    id: string;
-    creditAmount: number;
-    debitAmount: number;
-    categories: string[];
-    isCatError: boolean;
-  };
   const [subLines, setSubLines] = useState<SubLine[]>([
     {
       id: uuidv4(),
@@ -75,7 +58,11 @@ export const AddOperation = () => {
       isCatError: false,
     },
   ]);
+  const [catCombinationSet, setCatCombinationsSet] = useState<Set<string>>(
+    new Set()
+  );
 
+  /* ======================================================================== METHODS */
   function sumSubLines(
     property: 'creditAmount' | 'debitAmount',
     updater: (n: number) => void
@@ -92,38 +79,6 @@ export const AddOperation = () => {
     const smaller = Math.min(credit.total, debit.total);
     return Number((larger / smaller).toFixed(2));
   }
-
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    // console.log('handleSubmit event', event);
-    // console.log(
-    //   'handleSubmit Object.entries(event.target)',
-    //   Object.entries(event.target)
-    // );
-    console.log('handleSubmit subLines', subLines);
-    console.log(
-      'handleSubmit operation.creditOpAmount',
-      operation.creditOpAmount
-    );
-    console.log(
-      'handleSubmit operation.debitOpAmount',
-      operation.debitOpAmount
-    );
-    event.preventDefault();
-    /* Pass from Redux to DB */
-    // try {
-    //   // const operation = new Operation();
-    //   await window.electron.saveOp(operation);
-    //   // console.log('operationCreated', operationCreated);
-    //   /* Get all operations from DB and write them to Redux */
-    // } catch (error) {
-    //   // eslint-disable-next-line no-console
-    //   console.log('error', error);
-    // }
-  }
-
-  const [catCombinationSet, setCatCombinationsSet] = useState<Set<string>>(
-    new Set()
-  );
 
   function preGroupLines() {
     const newCatCombinationSet = new Set<string>();
@@ -148,16 +103,12 @@ export const AddOperation = () => {
   }
 
   function groupLines() {
-    // const newSubLines = [];
-    // Array.from(catCombinationSet).forEach((c) => {
-    //   newSubLines.push({ /* iterate over subLines for conditional sum */ })
-    // });
     const newSubLines = subLines.reduce(
       (results: Map<string, SubLine>, item) => {
         const combination = item.categories.sort().join('_');
         const previous = results.get(combination);
         if (previous) {
-          item.id = uuidv4();
+          item.id = uuidv4(); // necessary for a proper rerender!
           item.creditAmount += previous.creditAmount;
           item.debitAmount += previous.debitAmount;
         }
@@ -169,23 +120,71 @@ export const AddOperation = () => {
     setSubLines(Array.from(newSubLines).map((pair) => pair[1]));
   }
 
+  function handleRemoveExtraLine(id: string): void {
+    setSubLines(subLines.filter((l) => l.id !== id));
+  }
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    groupLines();
+    const operations = subLines.map(
+      (line) =>
+        new Operation({
+          transactionId: line.id,
+          creditAssetId: credit.asset.id,
+          creditCurrencyCode: credit.asset.currency,
+          creditOpAmount: line.creditAmount,
+          creditTrAmount: credit.total,
+          debitAssetId: debit.asset.id,
+          debitCurrencyCode: debit.asset.currency,
+          debitOpAmount: line.debitAmount,
+          debitTrAmount: debit.total,
+          categories,
+          ...operationStub,
+        })
+    );
+    console.log('operations', operations);
+    /* Pass from Redux to DB */
+    // try {
+    //   // const operation = new Operation();
+    //   await window.electron.saveOp(operation);
+    //   // console.log('operationCreated', operationCreated);
+    //   /* Get all operations from DB and write them to Redux */
+    // } catch (error) {
+    //   // eslint-disable-next-line no-console
+    //   console.log('error', error);
+    // }
+  }
+
+  /* ======================================================================== EFFECTS */
+  useEffect(() => {
+    async function downloadAssets() {
+      const newAssets = (await requestAssets()) as Asset[];
+      setAssets(newAssets);
+      setAssetOptions((state) =>
+        state.concat(newAssets.map((i) => ({ value: i.id, label: i.name })))
+      );
+    }
+    downloadAssets();
+  }, []);
+
   useEffect(() => {
     sumSubLines('creditAmount', credit.changeTotal);
     sumSubLines('debitAmount', debit.changeTotal);
     preGroupLines();
-    console.log('subLines', subLines);
   }, [subLines.length]);
 
-  // useEffect(() => {
-  //   console.log('catCombinationSet', catCombinationSet);
-  //   console.log('subLines', subLines);
-  //   console.log(catCombinationSet.size !== subLines.length);
-  //   console.log(!subLines.some((line) => line.isCatError));
-  // }, [catCombinationSet]);
-
-  function handleRemoveExtraLine(id: string): void {
-    setSubLines(subLines.filter((l) => l.id !== id));
-  }
+  useEffect(() => {
+    if (
+      credit.total > 0 &&
+      debit.total > 0 &&
+      credit.asset.currency !== debit.asset.currency
+    ) {
+      setOperationStub({ ...operationStub, rate: calculateRate() });
+    } else {
+      setOperationStub({ ...operationStub, rate: 1 });
+    }
+  }, [credit.total, debit.total]);
 
   return (
     <>
@@ -274,20 +273,18 @@ export const AddOperation = () => {
             </>
             <>
               <div className="display_row">
-                {credit.total > 0 &&
-                  debit.total > 0 &&
-                  credit.asset.currency !== debit.asset.currency && (
-                    <LabeledField label="Курс" id="rate" disabled>
-                      <NumericField
-                        name="rate"
-                        id="rate"
-                        defaultValue={calculateRate()}
-                        width="narrow"
-                        passValue={() => undefined}
-                        disabled
-                      />
-                    </LabeledField>
-                  )}
+                {operationStub.rate !== 1 && (
+                  <LabeledField label="Курс" id="rate" disabled>
+                    <NumericField
+                      name="rate"
+                      id="rate"
+                      defaultValue={operationStub.rate}
+                      width="narrow"
+                      passValue={() => undefined}
+                      disabled
+                    />
+                  </LabeledField>
+                )}
               </div>
 
               <AddLineButton
@@ -379,9 +376,9 @@ export const AddOperation = () => {
               <DateField
                 name="timestamp"
                 id="timestamp"
-                defaultValue={operation.timestamp}
+                defaultValue={operationStub.timestamp}
                 passValue={(value: string) => {
-                  operation.timestamp = value;
+                  operationStub.timestamp = value;
                 }}
               />
             </LabeledField>
@@ -390,9 +387,9 @@ export const AddOperation = () => {
               <CommentsField
                 name="comments"
                 id="comments"
-                defaultValue={operation.comments || ''}
+                defaultValue={operationStub.comments}
                 passValue={(value: string) => {
-                  operation.comments = value;
+                  operationStub.comments = value;
                 }}
               />
             </LabeledField>

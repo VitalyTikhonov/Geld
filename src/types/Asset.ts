@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
+import { makeCurrentDate } from '../renderer/utils/timestamps';
 import { CurrencyCode } from './currencies';
 
 export class Asset {
@@ -15,7 +16,6 @@ export class Asset {
     this.id = uuidv4();
     this.currency = CurrencyCode.RUR;
     this.balance = 0;
-    // eslint-disable-next-line prefer-destructuring
-    this.openDate = new Date().toISOString().split('T')[0];
+    this.openDate = makeCurrentDate();
   }
 }
