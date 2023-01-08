@@ -154,9 +154,15 @@ function callDevMethod(i: number) {
     dbConnection.requestTableList,
     () => {
       logLabeled('assets', assets);
-      (assets as Asset[]).forEach((a) => {
+      (assets as Asset[]).forEach(async (a) => {
         a.id = v4();
-        dbConnection.handleSaveAsset(a);
+        // eslint-disable-next-line prefer-destructuring
+        a.openDate = new Date().toISOString().split('T')[0];
+        try {
+          await dbConnection.handleSaveAsset(a);
+        } catch (err) {
+          logLabeled('Error creating assets', err);
+        }
       });
     },
   ];

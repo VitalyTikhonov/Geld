@@ -5,20 +5,24 @@ export class Operation {
   id: string;
   timestamp: string;
   creditAssetId?: string;
-  creditValue: number;
-  creditCurrency?: CurrencyCode;
+  creditCurrencyCode?: CurrencyCode;
+  creditOpAmount: number;
+  creditTrAmount: number;
   debitAssetId?: string;
-  debitValue: number;
-  debitCurrency?: CurrencyCode;
+  debitCurrencyCode?: CurrencyCode;
+  debitOpAmount: number;
+  debitTrAmount: number;
   rate?: number;
   categories?: Array<string>;
   comments?: string;
-  operationGroupId?: string;
+  transactionId?: string;
   constructor() {
     this.id = uuidv4();
     // eslint-disable-next-line prefer-destructuring
     this.timestamp = new Date().toISOString().split('T')[0];
-    this.creditValue = 0;
-    this.debitValue = 0;
+    this.creditOpAmount = 0;
+    this.creditTrAmount = 0;
+    this.debitOpAmount = 0;
+    this.debitTrAmount = 0;
   }
 }

@@ -13,10 +13,12 @@ const CREATE_ASSETS_TABLE_QUERY = {
   name: 'ASSETS',
   query: `
     CREATE TABLE IF NOT EXISTS assets (
-      id TEXT NOT NULL PRIMARY KEY,
-      name TEXT NOT NULL,
+      name TEXT NOT NULL PRIMARY KEY,
+      id TEXT NOT NULL,
       currency TEXT NOT NULL,
-      balance REAL,
+      balance REAL NOT NULL,
+      openDate TEXT NOT NULL,
+      closeDate TEXT,
       description TEXT
     );
   `,
@@ -26,15 +28,19 @@ const CREATE_OPERATIONS_TABLE_QUERY = {
   query: `
     CREATE TABLE IF NOT EXISTS operations (
       id TEXT NOT NULL PRIMARY KEY,
+      transactionId TEXT NOT NULL,
       timestamp TEXT NOT NULL,
       creditAssetId TEXT NOT NULL,
-      creditValue REAL NOT NULL,
+      creditCurrencyCode TEXT NOT NULL,
+      creditOpAmount REAL NOT NULL,
+      creditTrAmount REAL NOT NULL,
       debitAssetId TEXT NOT NULL,
-      debitValue REAL NOT NULL,
-      rate REAL NOT NULL,
-      categories TEXT NOT NULL,
+      debitCurrencyCode TEXT NOT NULL,
+      debitOpAmount REAL NOT NULL,
+      debitTrAmount REAL NOT NULL,
+      rate REAL,
+      categories TEXT,
       comments TEXT,
-      operationGroupId TEXT,
       FOREIGN KEY (creditAssetId) REFERENCES assets (id) ON DELETE CASCADE ON UPDATE NO ACTION,
       FOREIGN KEY (debitAssetId) REFERENCES assets (id) ON DELETE CASCADE ON UPDATE NO ACTION
     );
@@ -120,31 +126,39 @@ class DBConnection {
   handleSaveOperation(operation: Operation): Promise<DBResponse<Operation>> {
     const {
       id,
+      transactionId,
       timestamp,
       rate,
       creditAssetId,
-      creditValue,
+      creditCurrencyCode,
+      creditOpAmount,
+      creditTrAmount,
       debitAssetId,
-      debitValue,
+      debitCurrencyCode,
+      debitOpAmount,
+      debitTrAmount,
       comments,
       categories,
-      operationGroupId,
     } = operation;
     return new Promise<DBResponse<Operation>>((resolve, reject) => {
       try {
         this.db.get(
-          'INSERT INTO operations VALUES($id, $timestamp, $creditAssetId, $creditValue, $debitAssetId, $debitValue, $rate, $categories, $comments, $operationGroupId) RETURNING rowid, *;',
+          'INSERT INTO operations VALUES($id, $transactionId, $timestamp, $creditAssetId, $creditCurrencyCode, $creditOpAmount, $creditTrAmount, $debitAssetId, $debitCurrencyCode, $debitOpAmount, $debitTrAmount, $rate, $categories, $comments) RETURNING rowid, *;',
           {
             $id: id,
+            $transactionId: transactionId,
             $timestamp: timestamp,
             $creditAssetId: creditAssetId,
-            $creditValue: creditValue,
+            $creditCurrencyCode: creditCurrencyCode,
+            $creditOpAmount: creditOpAmount,
+            $creditTrAmount: creditTrAmount,
             $debitAssetId: debitAssetId,
-            $debitValue: debitValue,
+            $debitCurrencyCode: debitCurrencyCode,
+            $debitOpAmount: debitOpAmount,
+            $debitTrAmount: debitTrAmount,
             $rate: rate,
             $categories: categories,
             $comments: comments,
-            $operationGroupId: operationGroupId,
           },
           function (error, row) {
             if (error) {
@@ -165,16 +179,19 @@ class DBConnection {
   }
 
   handleSaveAsset(asset: Asset): Promise<DBResponse<Asset>> {
-    const { id, name, currency, balance, description } = asset;
+    const { name, id, currency, balance, openDate, closeDate, description } =
+      asset;
     return new Promise<DBResponse<Asset>>((resolve, reject) => {
       try {
         this.db.get(
-          'INSERT INTO assets VALUES($id, $name, $currency, $balance, $description) RETURNING rowid, *;',
+          'INSERT INTO assets VALUES($name, $id, $currency, $balance, $openDate, $closeDate, $description) RETURNING rowid, *;',
           {
-            $id: id,
             $name: name,
+            $id: id,
             $currency: currency,
             $balance: balance,
+            $openDate: openDate,
+            $closeDate: closeDate,
             $description: description,
           },
           function (error, row) {
