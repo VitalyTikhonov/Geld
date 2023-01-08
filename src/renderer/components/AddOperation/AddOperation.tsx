@@ -24,7 +24,7 @@ import { Asset } from '../../../types/Asset';
 import { requestAssets } from '../../utils/index';
 import { makeCurrentDate } from '../../utils/timestamps';
 import { useOperationPole } from '../../../utilsGeneral/useOperationPole';
-import categories from '../../../configs/categories.json';
+import categories from '../../../types/categories.json';
 
 type SubLine = {
   id: string;
@@ -39,15 +39,23 @@ type OperationStub = Pick<Operation, 'timestamp' | 'comments' | 'rate'>;
 export const AddOperation = () => {
   /* ======================================================================== STATE */
   const [assets, setAssets] = useState<Asset[]>([]);
-  const [assetOptions, setAssetOptions] = useState<IOption[]>([
-    { value: '', label: 'Выберите счёт' },
-  ]);
+  const [assetOptions, setAssetOptions] = useState<IOption[]>([]);
+  // const [assetOptions, setAssetOptions] = useState<IOption[]>([
+  //   { value: '', label: 'Выберите счёт' },
+  // ]);
   const [operationStub, setOperationStub] = useState<OperationStub>({
     timestamp: makeCurrentDate(),
     comments: '',
     rate: 0,
   });
   const credit = useOperationPole();
+
+  // useEffect(
+  //   () => console.log('credit.option.value', credit.option.value),
+  //   [credit.option.value]
+  // );
+  // useEffect(() => console.log('credit.asset', credit.asset), [credit.asset]);
+
   const debit = useOperationPole();
   const [subLines, setSubLines] = useState<SubLine[]>([
     {
@@ -103,7 +111,7 @@ export const AddOperation = () => {
   }
 
   function groupLines() {
-    const newSubLines = subLines.reduce(
+    const newSubLinesMap = subLines.reduce(
       (results: Map<string, SubLine>, item) => {
         const combination = item.categories.sort().join('_');
         const previous = results.get(combination);
@@ -117,7 +125,9 @@ export const AddOperation = () => {
       },
       new Map()
     );
-    setSubLines(Array.from(newSubLines).map((pair) => pair[1]));
+    const newSubLines = Array.from(newSubLinesMap).map((pair) => pair[1]);
+    setSubLines(newSubLines);
+    return newSubLines;
   }
 
   function handleRemoveExtraLine(id: string): void {
@@ -126,11 +136,12 @@ export const AddOperation = () => {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    groupLines();
-    const operations = subLines.map(
+    const newSubLines = groupLines(); // the state may have not been updated yet
+    const transactionId = uuidv4();
+    const operations = newSubLines.map(
       (line) =>
         new Operation({
-          transactionId: line.id,
+          transactionId,
           creditAssetId: credit.asset.id,
           creditCurrencyCode: credit.asset.currency,
           creditOpAmount: line.creditAmount,
@@ -139,7 +150,7 @@ export const AddOperation = () => {
           debitCurrencyCode: debit.asset.currency,
           debitOpAmount: line.debitAmount,
           debitTrAmount: debit.total,
-          categories,
+          categories: line.categories,
           ...operationStub,
         })
     );
@@ -161,9 +172,7 @@ export const AddOperation = () => {
     async function downloadAssets() {
       const newAssets = (await requestAssets()) as Asset[];
       setAssets(newAssets);
-      setAssetOptions((state) =>
-        state.concat(newAssets.map((i) => ({ value: i.id, label: i.name })))
-      );
+      setAssetOptions(newAssets.map((i) => ({ value: i.id, label: i.name })));
     }
     downloadAssets();
   }, []);
@@ -225,8 +234,10 @@ export const AddOperation = () => {
                 id="creditCurrency"
                 options={currencyOptions}
                 defaultValue={{
-                  value: credit.asset.currency,
-                  label: CurrencySymbol[credit.asset.currency],
+                  value: credit.asset.currency ?? undefined,
+                  label: credit.asset.currency
+                    ? CurrencySymbol[credit.asset.currency]
+                    : undefined,
                 }}
                 passValue={(newValue) =>
                   credit.changeCurrency(
@@ -261,8 +272,10 @@ export const AddOperation = () => {
                 id="debitCurrency"
                 options={currencyOptions}
                 defaultValue={{
-                  value: debit.asset.currency,
-                  label: CurrencySymbol[debit.asset.currency],
+                  value: debit.asset.currency ?? undefined,
+                  label: debit.asset.currency
+                    ? CurrencySymbol[debit.asset.currency]
+                    : undefined,
                 }}
                 passValue={(newValue) =>
                   debit.changeCurrency(
@@ -278,7 +291,7 @@ export const AddOperation = () => {
                     <NumericField
                       name="rate"
                       id="rate"
-                      defaultValue={operationStub.rate}
+                      defaultValue={operationStub.rate ?? undefined}
                       width="narrow"
                       passValue={() => undefined}
                       disabled
@@ -324,6 +337,7 @@ export const AddOperation = () => {
                   line.debitAmount = newValue;
                   sumSubLines('debitAmount', debit.changeTotal);
                 },
+                disabled: credit.asset.currency === debit.asset.currency,
               }}
               categories={{
                 options: categories,
@@ -387,7 +401,7 @@ export const AddOperation = () => {
               <CommentsField
                 name="comments"
                 id="comments"
-                defaultValue={operationStub.comments}
+                defaultValue={operationStub.comments ?? undefined}
                 passValue={(value: string) => {
                   operationStub.comments = value;
                 }}

@@ -1,15 +1,21 @@
 import { useState } from 'react';
 import { IOption } from 'renderer/components/form/types';
 import { CurrencyCode } from 'types/currencies';
-import { Asset } from '../types/Asset';
+import { Asset, BlankAsset } from '../types/Asset';
+
+const blankAsset: BlankAsset = {
+  name: null,
+  id: null,
+  currency: null,
+};
 
 const blankOption = {
-  value: '',
-  label: '',
+  value: undefined,
+  label: undefined,
 };
 
 export function useOperationPole() {
-  const [asset, setAsset] = useState<Asset>(new Asset());
+  const [asset, setAsset] = useState<Asset | BlankAsset>(blankAsset);
   const [total, setTotal] = useState(0);
   const [option, setOption] = useState<IOption>(blankOption);
 
@@ -18,15 +24,14 @@ export function useOperationPole() {
       setAsset(newAsset);
       setOption({ value: newAsset.id, label: newAsset.name });
     } else {
-      setAsset(new Asset());
+      setAsset(blankAsset);
       setOption(blankOption);
     }
   }
 
   function changeCurrency(code: CurrencyCode) {
-    const newAsset = new Asset();
-    newAsset.currency = code;
-    setAsset(newAsset);
+    asset.currency = code;
+    setAsset({ ...asset });
     setOption(blankOption);
   }
 

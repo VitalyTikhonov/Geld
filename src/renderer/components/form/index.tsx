@@ -1,6 +1,6 @@
 /* eslint-disable react/require-default-props */
 import cn from 'classnames';
-import { ChangeEvent, useCallback, useMemo, useState } from 'react';
+import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import Cross from '../ui';
 import './index.scss';
 import {
@@ -25,6 +25,11 @@ export function Dropdown({
   placeholder,
 }: IDropdown): JSX.Element {
   const [value, setValue] = useState(defaultValue);
+  useEffect(() => {
+    if (typeof value !== 'string') {
+      console.log(name, value);
+    }
+  }, [value]);
 
   return (
     <select
@@ -51,6 +56,12 @@ export function Dropdown({
       }}
       placeholder={placeholder}
     >
+      <option key="default" value="default" disabled hidden>
+        {placeholder}
+      </option>
+      <option key="BLANK" value="BLANK">
+        -
+      </option>
       {options.map((option) => {
         if (typeof option === 'string') {
           return (

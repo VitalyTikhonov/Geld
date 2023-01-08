@@ -27,7 +27,7 @@ import { dbConnection } from '../database';
 import { setGlobalShortcut } from './utils';
 import { logLabeled } from '../utilsGeneral/console';
 import { Operation } from '../types/Operation';
-import assets from '../configs/assets.json';
+import assets from '../types/assets.json';
 import { Asset } from '../types/Asset';
 
 class AppUpdater {

@@ -11,6 +11,7 @@ interface IOpSubline {
   debit: {
     defaultValue: number;
     passValue: (arg: number) => void;
+    disabled: boolean;
   };
   categories: {
     options: string[];
@@ -47,6 +48,7 @@ export default function OpSubline({
         defaultValue={debit.defaultValue}
         passValue={debit.passValue}
         placeholder="Сумма"
+        disabled={debit.disabled}
       />
 
       <>

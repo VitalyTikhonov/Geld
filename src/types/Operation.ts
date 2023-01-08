@@ -5,17 +5,17 @@ export class Operation {
   id: string;
   transactionId: string;
   timestamp: string;
-  creditAssetId: string;
-  creditCurrencyCode: CurrencyCode;
-  creditOpAmount: number;
-  creditTrAmount: number;
-  debitAssetId: string;
-  debitCurrencyCode: CurrencyCode;
-  debitOpAmount: number;
-  debitTrAmount: number;
-  rate: number;
-  categories: Array<string>;
-  comments: string;
+  creditAssetId: string | null;
+  creditCurrencyCode: CurrencyCode | null;
+  creditOpAmount: number | null;
+  creditTrAmount: number | null;
+  debitAssetId: string | null;
+  debitCurrencyCode: CurrencyCode | null;
+  debitOpAmount: number | null;
+  debitTrAmount: number | null;
+  rate: number | null;
+  categories: Array<string> | null;
+  comments: string | null;
 
   constructor({
     transactionId,
@@ -35,16 +35,16 @@ export class Operation {
     this.id = uuidv4();
     this.transactionId = transactionId;
     this.timestamp = timestamp;
-    this.creditAssetId = creditAssetId;
-    this.creditCurrencyCode = creditCurrencyCode;
-    this.creditOpAmount = creditOpAmount;
-    this.creditTrAmount = creditTrAmount;
-    this.debitAssetId = debitAssetId;
-    this.debitCurrencyCode = debitCurrencyCode;
-    this.debitOpAmount = debitOpAmount;
-    this.debitTrAmount = debitTrAmount;
-    this.rate = rate;
-    this.categories = categories;
-    this.comments = comments;
+    this.creditAssetId = creditAssetId || null;
+    this.creditCurrencyCode = creditCurrencyCode || null;
+    this.creditOpAmount = creditOpAmount || null;
+    this.creditTrAmount = creditTrAmount || null;
+    this.debitAssetId = debitAssetId || null;
+    this.debitCurrencyCode = debitCurrencyCode || null;
+    this.debitOpAmount = debitOpAmount || null;
+    this.debitTrAmount = debitTrAmount || null;
+    this.rate = rate || null;
+    this.categories = categories || null;
+    this.comments = comments || null;
   }
 }

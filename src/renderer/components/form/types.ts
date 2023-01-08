@@ -21,7 +21,7 @@ interface IField<T> extends IFormElement {
   // eslint-disable-next-line react/no-unused-prop-types
   id: string;
   name: string;
-  defaultValue: T;
+  defaultValue: T | undefined;
   passValue: (arg: T) => void;
   placeholder?: string;
 }
