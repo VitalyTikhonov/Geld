@@ -6,14 +6,20 @@ interface IOpLine {
   children: JSX.Element[];
   // eslint-disable-next-line react/require-default-props
   freeWidth?: boolean;
+  // eslint-disable-next-line react/require-default-props
+  // isError?: boolean;
 }
 
 /** Creates a row of three elements ("columns") */
 export default function OpLine(props: IOpLine) {
-  const { id, children, freeWidth } = props;
+  const { id, children, freeWidth /* , isError */ } = props;
 
   return (
-    <div key={id} className="op_line">
+    <div
+      key={id}
+      className="op_line"
+      // className={classNames('op_line', { 'op_line-error': isError })}
+    >
       <div
         className={classNames('op_line--column', {
           'op_line--column-freeWidth': freeWidth,

@@ -185,6 +185,23 @@ export function AddLineButton({
   );
 }
 
+export function ConsolidateLinesButton({
+  disabled,
+  onClick,
+}: IAddLineButton): JSX.Element {
+  return (
+    <button
+      id="consolidateLinesButton"
+      type="button"
+      disabled={disabled}
+      onClick={onClick}
+      className={cn('form--button', { 'form--button-disabled': disabled })}
+    >
+      Объединить по категориям
+    </button>
+  );
+}
+
 export function RemoveLineButton({
   onClick,
   id,

@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import {
   AddLineButton,
   CommentsField,
+  ConsolidateLinesButton,
   DateField,
   Dropdown,
   LabeledField,
@@ -45,16 +46,16 @@ export const AddOperation = () => {
 
   const credit = useOperationPole();
   const debit = useOperationPole();
-  useEffect(() => console.log('credit.total', credit.total), [credit.total]);
-  useEffect(() => console.log('debit.total', debit.total), [debit.total]);
+  // useEffect(() => console.log('credit.total', credit.total), [credit.total]);
+  // useEffect(() => console.log('debit.total', debit.total), [debit.total]);
   useEffect(() => {
     operation.creditAssetId = credit.asset.id;
-    operation.creditCurrency = credit.asset.currency;
+    operation.creditCurrencyCode = credit.asset.currency;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [credit]);
   useEffect(() => {
     operation.debitAssetId = debit.asset.id;
-    operation.debitCurrency = debit.asset.currency;
+    operation.debitCurrencyCode = debit.asset.currency;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debit]);
 
@@ -63,6 +64,7 @@ export const AddOperation = () => {
     creditAmount: number;
     debitAmount: number;
     categories: string[];
+    isCatError: boolean;
   };
   const [subLines, setSubLines] = useState<SubLine[]>([
     {
@@ -70,6 +72,7 @@ export const AddOperation = () => {
       creditAmount: 0,
       debitAmount: 0,
       categories: [],
+      isCatError: false,
     },
   ]);
 
@@ -97,8 +100,14 @@ export const AddOperation = () => {
     //   Object.entries(event.target)
     // );
     console.log('handleSubmit subLines', subLines);
-    console.log('handleSubmit operation.creditValue', operation.creditValue);
-    console.log('handleSubmit operation.debitValue', operation.debitValue);
+    console.log(
+      'handleSubmit operation.creditOpAmount',
+      operation.creditOpAmount
+    );
+    console.log(
+      'handleSubmit operation.debitOpAmount',
+      operation.debitOpAmount
+    );
     event.preventDefault();
     /* Pass from Redux to DB */
     // try {
@@ -112,14 +121,71 @@ export const AddOperation = () => {
     // }
   }
 
-  function handleRemoveExtraLine(id: string): void {
-    setSubLines(subLines.filter((l) => l.id !== id));
+  const [catCombinationSet, setCatCombinationsSet] = useState<Set<string>>(
+    new Set()
+  );
+
+  function preGroupLines() {
+    const newCatCombinationSet = new Set<string>();
+    if (subLines.length !== 1) {
+      subLines.forEach((line) => {
+        if (line.categories.length === 0) {
+          line.isCatError = true;
+          newCatCombinationSet.clear();
+        } else {
+          line.isCatError = false;
+          newCatCombinationSet.add(line.categories.sort().join('_'));
+        }
+      });
+    } else {
+      subLines[0].isCatError = false;
+      newCatCombinationSet.clear();
+    }
+    if (newCatCombinationSet.size === subLines.length) {
+      newCatCombinationSet.clear();
+    }
+    setCatCombinationsSet(new Set(newCatCombinationSet));
+  }
+
+  function groupLines() {
+    // const newSubLines = [];
+    // Array.from(catCombinationSet).forEach((c) => {
+    //   newSubLines.push({ /* iterate over subLines for conditional sum */ })
+    // });
+    const newSubLines = subLines.reduce(
+      (results: Map<string, SubLine>, item) => {
+        const combination = item.categories.sort().join('_');
+        const previous = results.get(combination);
+        if (previous) {
+          item.id = uuidv4();
+          item.creditAmount += previous.creditAmount;
+          item.debitAmount += previous.debitAmount;
+        }
+        results.set(combination, item);
+        return results;
+      },
+      new Map()
+    );
+    setSubLines(Array.from(newSubLines).map((pair) => pair[1]));
   }
 
   useEffect(() => {
     sumSubLines('creditAmount', credit.changeTotal);
     sumSubLines('debitAmount', debit.changeTotal);
+    preGroupLines();
+    console.log('subLines', subLines);
   }, [subLines.length]);
+
+  // useEffect(() => {
+  //   console.log('catCombinationSet', catCombinationSet);
+  //   console.log('subLines', subLines);
+  //   console.log(catCombinationSet.size !== subLines.length);
+  //   console.log(!subLines.some((line) => line.isCatError));
+  // }, [catCombinationSet]);
+
+  function handleRemoveExtraLine(id: string): void {
+    setSubLines(subLines.filter((l) => l.id !== id));
+  }
 
   return (
     <>
@@ -233,6 +299,7 @@ export const AddOperation = () => {
                       creditAmount: 0,
                       debitAmount: 0,
                       categories: [],
+                      isCatError: false,
                     },
                   ])
                 }
@@ -240,6 +307,7 @@ export const AddOperation = () => {
             </>
           </OpLine>
 
+          {/* SUBLINES */}
           {subLines.map((line) => (
             <OpSubline
               key={line.id}
@@ -265,11 +333,14 @@ export const AddOperation = () => {
                 defaultValue: line.categories,
                 passValue: (newCategories) => {
                   line.categories = newCategories;
+                  preGroupLines();
                 },
               }}
+              isCatError={line.isCatError}
             />
           ))}
 
+          {/* SUBLINES TOTALS */}
           {subLines.length > 1 && (
             <OpLine key={uuidv4()} id={uuidv4()}>
               <LabeledField label="Итого" id="sublinesTotal" disabled>
@@ -291,6 +362,15 @@ export const AddOperation = () => {
                   disabled
                 />
               </LabeledField>
+
+              {catCombinationSet.size ? (
+                <>
+                  <div className="display_row" />
+                  <ConsolidateLinesButton onClick={groupLines} />
+                </>
+              ) : (
+                <></>
+              )}
             </OpLine>
           )}
 

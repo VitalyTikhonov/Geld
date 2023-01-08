@@ -19,6 +19,7 @@ interface IOpSubline {
   };
   handleRemoveExtraLine: (id: string) => void;
   isSingle: boolean;
+  isCatError: boolean;
 }
 
 export default function OpSubline({
@@ -28,9 +29,10 @@ export default function OpSubline({
   credit,
   debit,
   categories,
+  isCatError,
 }: IOpSubline): JSX.Element {
   return (
-    <OpLine id={id}>
+    <OpLine id={id} /* isError={isError} */>
       <NumericField
         id={`credit-amount-${id}`}
         name={`credit-amount-${id}`}
@@ -53,6 +55,7 @@ export default function OpSubline({
           defaultValue={categories.defaultValue}
           passValue={categories.passValue}
           options={categories.options}
+          isError={isCatError}
         />
         <RemoveLineButton
           id={id} // Не изменять id

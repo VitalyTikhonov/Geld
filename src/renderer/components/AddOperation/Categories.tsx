@@ -2,6 +2,7 @@
 import { WithContext as ReactTags, Tag } from 'react-tag-input';
 import { useEffect, useState } from 'react';
 import './Categories.scss';
+import classNames from 'classnames';
 
 function Suggestions({ text }: { text: string }, query: string): JSX.Element {
   if (
@@ -18,10 +19,12 @@ interface ICategories {
   defaultValue: string[];
   passValue: (args: string[]) => void;
   options: string[];
+  // eslint-disable-next-line react/require-default-props
+  isError?: boolean;
 }
 
 export default function Categories(props: ICategories): JSX.Element {
-  const { id, defaultValue, passValue, options } = props;
+  const { id, defaultValue, passValue, options, isError } = props;
 
   const suggestions: Tag[] = options.map((o) => ({ id: o, text: o }));
 
@@ -101,9 +104,13 @@ export default function Categories(props: ICategories): JSX.Element {
       classNames={{
         tags: 'categories',
         tagInput: 'categories--input_group',
-        tagInputField: 'form--field categories--input_field',
+        tagInputField: classNames('form--field categories--input_field', {
+          'categories--input_field-error': isError,
+        }),
         selected: 'categories--selected',
-        tag: 'categories--tag',
+        tag: classNames('categories--tag', {
+          'categories--tag-error': isError,
+        }),
         remove: 'categories--remove_icon',
         suggestions: 'form--field categories--suggestions',
         activeSuggestion: 'categories--suggestions_active',

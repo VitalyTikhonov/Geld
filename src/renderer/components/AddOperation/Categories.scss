@@ -32,6 +32,15 @@
   // &:last-of-type {
   //   margin-right: 0;
   // }
+
+  &-error {
+    border-color: #bb8484;
+    color: #a05151;
+
+    & button {
+      color: #a05151;
+    }
+  }
 }
 
 .categories--remove_icon {
@@ -51,6 +60,14 @@
 
 .categories--input_field {
   width: 128px;
+
+  &-error {
+    background-color: #bb8484;
+
+    &::placeholder {
+      color: #a05151;
+    }
+  }
 }
 
 .categories--suggestions {
@@ -58,6 +75,7 @@
   right: 0;
   top: calc(100% + 3px);
   z-index: 1;
+  height: unset;
   max-height: 50vh;
   overflow-y: scroll;
 

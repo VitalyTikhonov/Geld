@@ -1,6 +1,10 @@
 .op_line {
   display: flex;
   flex-direction: row;
+
+  &-error {
+    background-color: #fff;;
+  }
 }
 
 .op_line--column {
