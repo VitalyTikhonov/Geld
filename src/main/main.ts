@@ -170,6 +170,14 @@ app
     setGlobalShortcut('Alt + 2', () => callDevMethod(1));
     setGlobalShortcut('Alt + 3', () => callDevMethod(2));
     setGlobalShortcut('Alt + 4', () => callDevMethod(3));
+    setGlobalShortcut('Alt + 5', () => callDevMethod(4));
+    setGlobalShortcut('Alt + 6', () => callDevMethod(5));
+    setGlobalShortcut('Alt + 7', () => callDevMethod(6));
+    setGlobalShortcut('Alt + 8', () => callDevMethod(7));
+    setGlobalShortcut('Alt + 9', () => callDevMethod(8));
+    setGlobalShortcut('Alt + 0', () => callDevMethod(9));
+
+    dbConnection.initializeDBAndTables();
 
     ipcMain.handle(
       'saveOperation',
@@ -179,7 +187,6 @@ app
     ipcMain.handle('getAssets', (/* _: IpcMainInvokeEvent */) =>
       dbConnection.getAssets());
 
-    dbConnection.initializeDBAndTables();
     createWindow();
     app.on('activate', () => {
       // On macOS it's common to re-create a window in the app when the

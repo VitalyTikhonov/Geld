@@ -22,6 +22,7 @@ import {
 import { Asset } from '../../../types/Asset';
 import { requestAssets } from '../../utils';
 import { useOperationPole } from '../../../utilsGeneral/useOperationPole';
+import categories from '../../../configs/categories.json';
 
 export const AddOperation = () => {
   const [operation, setOperation] = useState(new Operation());
@@ -260,6 +261,7 @@ export const AddOperation = () => {
                 },
               }}
               categories={{
+                options: categories,
                 defaultValue: line.categories,
                 passValue: (newCategories) => {
                   line.categories = newCategories;

@@ -17,19 +17,13 @@ interface ICategories {
   id: string;
   defaultValue: string[];
   passValue: (args: string[]) => void;
+  options: string[];
 }
 
 export default function Categories(props: ICategories): JSX.Element {
-  const { id, defaultValue, passValue } = props;
+  const { id, defaultValue, passValue, options } = props;
 
-  const suggestions: Tag[] = [
-    { id: 'Thailand', text: 'Thailand' },
-    { id: 'India', text: 'India' },
-    { id: 'Indonesia', text: 'Indonesia' },
-    { id: 'Innneapolis', text: 'Innneapolis' },
-    { id: 'Vietnam', text: 'Vietnam' },
-    { id: 'Turkey', text: 'Turkey' },
-  ];
+  const suggestions: Tag[] = options.map((o) => ({ id: o, text: o }));
 
   // function handleFilterSuggestions(query: string, possibleSuggestions: Tag[]) {
   //   const newPossibleSuggestions = possibleSuggestions;

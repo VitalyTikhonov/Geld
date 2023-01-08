@@ -58,6 +58,8 @@
   right: 0;
   top: calc(100% + 3px);
   z-index: 1;
+  max-height: 50vh;
+  overflow-y: scroll;
 
   & li {
     padding: 2px 4px;

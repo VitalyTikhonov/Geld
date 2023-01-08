@@ -13,6 +13,7 @@ interface IOpSubline {
     passValue: (arg: number) => void;
   };
   categories: {
+    options: string[];
     defaultValue: string[];
     passValue: (args: string[]) => void;
   };
@@ -51,6 +52,7 @@ export default function OpSubline({
           id={`categories-${id}`}
           defaultValue={categories.defaultValue}
           passValue={categories.passValue}
+          options={categories.options}
         />
         <RemoveLineButton
           id={id} // Не изменять id
