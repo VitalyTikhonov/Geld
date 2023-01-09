@@ -25,11 +25,6 @@ export function Dropdown({
   placeholder,
 }: IDropdown): JSX.Element {
   const [value, setValue] = useState(defaultValue);
-  useEffect(() => {
-    if (typeof value !== 'string') {
-      console.log(name, value);
-    }
-  }, [value]);
 
   return (
     <select
@@ -45,6 +40,7 @@ export function Dropdown({
       onChange={(e: GeChangeEvent) => {
         if (typeof value === 'string') {
           setValue(e.target.value);
+          passValue(e.target.value); // ?
         } else {
           const optionsTyped = options as IOption[];
           const match = optionsTyped.find((o) => o.value === e.target.value);
@@ -56,12 +52,6 @@ export function Dropdown({
       }}
       placeholder={placeholder}
     >
-      <option key="default" value="default" disabled hidden>
-        {placeholder}
-      </option>
-      <option key="BLANK" value="BLANK">
-        -
-      </option>
       {options.map((option) => {
         if (typeof option === 'string') {
           return (

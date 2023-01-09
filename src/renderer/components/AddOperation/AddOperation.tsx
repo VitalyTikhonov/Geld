@@ -15,15 +15,14 @@ import OpLine from './OpLine';
 import OpSubline from './OpSubline';
 import { IOption } from '../form/types';
 import { Operation } from '../../../types/Operation';
-import {
-  CurrencyCode,
-  currencyOptions,
-  CurrencySymbol,
-} from '../../../types/currencies';
+import { CurrencyCode, currencyOptions } from '../../../types/currencies';
 import { Asset } from '../../../types/Asset';
 import { requestAssets } from '../../utils/index';
 import { makeCurrentDate } from '../../utils/timestamps';
-import { useOperationPole } from '../../../utilsGeneral/useOperationPole';
+import {
+  blankAssetOption,
+  useOperationPole,
+} from '../../../utilsGeneral/useOperationPole';
 import categories from '../../../types/categories.json';
 
 type SubLine = {
@@ -50,11 +49,7 @@ export const AddOperation = () => {
   });
   const credit = useOperationPole();
 
-  // useEffect(
-  //   () => console.log('credit.option.value', credit.option.value),
-  //   [credit.option.value]
-  // );
-  // useEffect(() => console.log('credit.asset', credit.asset), [credit.asset]);
+  // useEffect(() => console.log('CREDIT.ASSET', credit.asset), [credit.asset]);
 
   const debit = useOperationPole();
   const [subLines, setSubLines] = useState<SubLine[]>([
@@ -142,12 +137,12 @@ export const AddOperation = () => {
       (line) =>
         new Operation({
           transactionId,
-          creditAssetId: credit.asset.id,
-          creditCurrencyCode: credit.asset.currency,
+          creditAssetId: credit.asset.id ?? null,
+          creditCurrencyCode: credit.asset.currency ?? null,
           creditOpAmount: line.creditAmount,
           creditTrAmount: credit.total,
-          debitAssetId: debit.asset.id,
-          debitCurrencyCode: debit.asset.currency,
+          debitAssetId: debit.asset.id ?? null,
+          debitCurrencyCode: debit.asset.currency ?? null,
           debitOpAmount: line.debitAmount,
           debitTrAmount: debit.total,
           categories: line.categories,
@@ -172,7 +167,11 @@ export const AddOperation = () => {
     async function downloadAssets() {
       const newAssets = (await requestAssets()) as Asset[];
       setAssets(newAssets);
-      setAssetOptions(newAssets.map((i) => ({ value: i.id, label: i.name })));
+      setAssetOptions(
+        [blankAssetOption].concat(
+          newAssets.map((i) => ({ value: i.id, label: i.name }))
+        )
+      );
     }
     downloadAssets();
   }, []);
@@ -214,11 +213,7 @@ export const AddOperation = () => {
                   name="creditAssetId"
                   id="creditAssetId"
                   options={assetOptions}
-                  defaultValue={{
-                    value: credit.option.value,
-                    label: credit.option.label,
-                  }}
-                  placeholder="Выберите счёт"
+                  defaultValue={credit.assetOption}
                   passValue={(newValue) =>
                     credit.replace(
                       assets.find(
@@ -233,12 +228,7 @@ export const AddOperation = () => {
                 name="creditCurrency"
                 id="creditCurrency"
                 options={currencyOptions}
-                defaultValue={{
-                  value: credit.asset.currency ?? undefined,
-                  label: credit.asset.currency
-                    ? CurrencySymbol[credit.asset.currency]
-                    : undefined,
-                }}
+                defaultValue={credit.currencyOption}
                 passValue={(newValue) =>
                   credit.changeCurrency(
                     (newValue as IOption<string>).value as CurrencyCode
@@ -252,11 +242,7 @@ export const AddOperation = () => {
                   name="debitAssetId"
                   id="debitAssetId"
                   options={assetOptions}
-                  defaultValue={{
-                    value: debit.option.value,
-                    label: debit.option.label,
-                  }}
-                  placeholder="Выберите счёт"
+                  defaultValue={debit.assetOption}
                   passValue={(newValue) =>
                     debit.replace(
                       assets.find(
@@ -271,12 +257,7 @@ export const AddOperation = () => {
                 name="debitCurrency"
                 id="debitCurrency"
                 options={currencyOptions}
-                defaultValue={{
-                  value: debit.asset.currency ?? undefined,
-                  label: debit.asset.currency
-                    ? CurrencySymbol[debit.asset.currency]
-                    : undefined,
-                }}
+                defaultValue={debit.currencyOption}
                 passValue={(newValue) =>
                   debit.changeCurrency(
                     (newValue as IOption<string>).value as CurrencyCode

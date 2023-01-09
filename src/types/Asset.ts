@@ -27,9 +27,3 @@ export class Asset {
     this.description = description;
   }
 }
-
-export type BlankAsset = {
-  name: null;
-  id: null;
-  currency: CurrencyCode | null;
-};

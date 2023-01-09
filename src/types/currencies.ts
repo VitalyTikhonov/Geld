@@ -28,10 +28,17 @@ export enum CurrencySymbol {
 //   AMD = 'драм',
 // }
 
-export const currencyOptions: IOption[] = Object.entries(CurrencySymbol).map((pair) => ({
-  value: pair[0],
-  label: pair[1],
-}));
+export const blankCurrencyOption: IOption<string> = {
+  value: '–',
+  label: '–',
+};
+
+export const currencyOptions: IOption[] = [blankCurrencyOption].concat(
+  Object.entries(CurrencySymbol).map((pair) => ({
+    value: pair[0],
+    label: pair[1],
+  }))
+);
 
 // export const currencyCodeSet = new Set(Object.values(CurrencyCode));
 

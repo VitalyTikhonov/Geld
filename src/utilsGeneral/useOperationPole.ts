@@ -1,38 +1,56 @@
 import { useState } from 'react';
 import { IOption } from 'renderer/components/form/types';
-import { CurrencyCode } from 'types/currencies';
-import { Asset, BlankAsset } from '../types/Asset';
+import {
+  blankCurrencyOption,
+  CurrencyCode,
+  CurrencySymbol,
+} from 'types/currencies';
+import { Asset } from '../types/Asset';
 
-const blankAsset: BlankAsset = {
-  name: null,
-  id: null,
-  currency: null,
-};
+type AssetInfo = Partial<Asset>;
 
-const blankOption = {
-  value: undefined,
-  label: undefined,
+const getBlankAsset = (props: AssetInfo): AssetInfo => ({
+  name: undefined,
+  currency: undefined,
+  balance: undefined,
+  openDate: undefined,
+  ...props,
+});
+
+export const blankAssetOption: IOption<string> = {
+  value: '–',
+  label: 'Выберите счёт',
 };
 
 export function useOperationPole() {
-  const [asset, setAsset] = useState<Asset | BlankAsset>(blankAsset);
+  const [asset, setAsset] = useState<AssetInfo>(getBlankAsset({}));
+  const [assetOption, setAssetOption] = useState<IOption>(blankAssetOption);
+  const [currencyOption, setCurrencyOption] =
+    useState<IOption>(blankCurrencyOption);
   const [total, setTotal] = useState(0);
-  const [option, setOption] = useState<IOption>(blankOption);
 
   function replace(newAsset: Asset | undefined) {
     if (newAsset) {
       setAsset(newAsset);
-      setOption({ value: newAsset.id, label: newAsset.name });
+      setAssetOption({ value: newAsset.id, label: newAsset.name });
+      setCurrencyOption({
+        value: newAsset.currency,
+        label: CurrencySymbol[newAsset.currency],
+      });
     } else {
-      setAsset(blankAsset);
-      setOption(blankOption);
+      setAsset(getBlankAsset({}));
+      setAssetOption(blankAssetOption);
+      setCurrencyOption(blankCurrencyOption);
     }
   }
 
   function changeCurrency(code: CurrencyCode) {
-    asset.currency = code;
-    setAsset({ ...asset });
-    setOption(blankOption);
+    setAsset(getBlankAsset({ currency: code }));
+    setAssetOption(blankAssetOption);
+    setCurrencyOption({
+      value: code,
+      label: CurrencySymbol[code],
+    });
   }
 
   function changeTotal(amount: number) {
@@ -41,8 +59,9 @@ export function useOperationPole() {
 
   return {
     asset,
+    assetOption,
+    currencyOption,
     total,
-    option,
     replace,
     changeCurrency,
     changeTotal,
