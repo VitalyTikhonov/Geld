@@ -2,7 +2,7 @@
 ###### A bookkeeping app
 I have always been managing my personal finances in MS Excel (and even tried promoting my solution to others a couple of times – here is [a kind of a tutorial](https://docs.google.com/document/d/1BRcD2lGndHzWrKCKUYvo20z8WQZObremU5AhF63XFos/edit?usp=drive_web&ouid=100296723431598150507) with some screenshots I wrote in 2019 and here is [the template file](https://drive.google.com/file/d/10T3NyrLp4zCbgdTvHv9CRBiSThGk-rrJ/view?usp=share_link) (some version of it) (all in Russian only).
 
-But since I changed my profession from English-Russian translation to web-development in 2020, I inevitably started thinking about how to transform and improve my bookeeping using JavaScript.
+But since I changed my profession from English-Russian translation to web-development in 2019, I inevitably started thinking about how to transform and improve my bookeeping using JavaScript.
 
 And then I learnt Electron and realized it was what I actually needed.
 
